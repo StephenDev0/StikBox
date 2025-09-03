@@ -1,0 +1,1039 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover, user-scalable=no" />
+  <title>StikBox — Beta</title>
+  <style>
+    :root{
+      --bg:#0b0f14;
+      --text:#e9eef5; --muted:#9aa6b2;
+      --accent:#89b4ff; --accent-2:#ffd166;
+      --ok:#2dcc70; --warn:#ffb020; --danger:#ff6b6b;
+      --stroke:rgba(255,255,255,.16);
+      --panel:rgba(255,255,255,.06);
+      --panel-2:rgba(255,255,255,.07);
+      --radius:20px;
+
+      /* Controls */
+      --ui-scale: 0.55;      /* global shrink */
+      --ui-comp: calc(1 / var(--ui-scale));   /* compensate sizes post-scale */
+      --chrome: 150px;       /* header + toolbar + margins to subtract */
+
+      /* Canvas height targets (visual, pre-scale) */
+      --canvas-min-vis: 78svh;  /* never shorter than this */
+      --canvas-max-vis: 1100px; /* hard visual cap */
+    }
+
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    html{ -webkit-text-size-adjust:100%; text-size-adjust:100%; }
+    input, button, select, textarea { font-size:16px; }
+
+    body{
+      margin:0; color:var(--text); font:500 15px/1.3 system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial;
+      background:
+        radial-gradient(40% 60% at 20% 15%, rgba(99,102,241,.18), transparent 60%),
+        radial-gradient(35% 55% at 80% 80%, rgba(59,130,246,.14), transparent 60%),
+        linear-gradient(180deg, #0c1118, #0a0e14 30%, #090d13 60%, #070b10);
+    }
+
+    /* Global UI scale */
+    .ui-root{
+      transform: scale(var(--ui-scale));
+      transform-origin: top left;
+      width: calc(100% / var(--ui-scale));
+      height: calc(100% / var(--ui-scale));
+    }
+
+    .shell{display:flex; flex-direction:column; min-height:100dvh;}
+
+    .glass{
+      background:rgba(255,255,255,.06);
+      backdrop-filter:saturate(1.2) blur(18px);
+      -webkit-backdrop-filter:saturate(1.2) blur(18px);
+      border:1px solid var(--stroke);
+      border-radius:var(--radius);
+      box-shadow:0 20px 50px rgba(0,0,0,.25);
+    }
+    .glass-soft{
+      background:rgba(255,255,255,.05);
+      backdrop-filter:saturate(1.2) blur(14px);
+      -webkit-backdrop-filter:saturate(1.2) blur(14px);
+      border:1px solid rgba(255,255,255,.12);
+      border-radius:16px;
+    }
+    .btn{
+      border:1px solid var(--stroke);
+      background:rgba(255,255,255,.06);
+      color:var(--text);
+      border-radius:12px;
+      padding:.48rem .7rem;
+      cursor:pointer; display:inline-flex; align-items:center; gap:.35rem; user-select:none; white-space:nowrap;
+      box-shadow:0 6px 20px rgba(0,0,0,.22) inset, 0 6px 16px rgba(0,0,0,.15);
+      transition:transform .06s ease, background .2s ease, border-color .2s ease;
+    }
+    .btn:hover{ background:rgba(255,255,255,.1); }
+    .btn:active{ transform:translateY(1px) scale(.99); }
+    .btn[disabled]{opacity:.6; cursor:not-allowed}
+
+    .toolbar{
+      position:sticky; top:0; z-index:8; display:flex; flex-wrap:wrap; align-items:center; gap:.6rem;
+      padding:.6rem .7rem;
+      background:rgba(14,18,26,.5);
+      backdrop-filter:blur(16px) saturate(1.2);
+      -webkit-backdrop-filter:blur(16px) saturate(1.2);
+      border-bottom:none;
+    }
+    .brand{display:flex; align-items:center; gap:.6rem; padding-right:.4rem}
+    .brand .logo{width:42px; height:42px; border-radius:14px; background:
+      radial-gradient(60% 60% at 30% 30%, rgba(255,255,255,.25), transparent 60%),
+      conic-gradient(from 220deg, var(--accent), var(--accent-2) 60%, #7dd3fc);
+      border:1px solid var(--stroke);
+      box-shadow:0 12px 30px rgba(0,0,0,.28);
+    }
+    .beta{margin-left:8px; border:1px solid var(--stroke); padding:.15rem .45rem; border-radius:999px; color:#ffd166; font-weight:800; letter-spacing:.3px; background:rgba(255,255,255,.06)}
+
+    .group{display:flex; align-items:center; gap:.4rem; padding:.35rem; border-radius:16px; border:1px solid var(--stroke); background:rgba(255,255,255,.05)}
+    .seg{display:flex; gap:.25rem; overflow:auto; -webkit-overflow-scrolling:touch}
+    .seg>input{display:none}
+    .seg>label{border:1px solid var(--stroke); background:rgba(255,255,255,.06); color:var(--text); border-radius:10px; padding:.45rem .6rem; cursor:pointer; display:inline-flex; align-items:center; gap:.35rem; user-select:none; white-space:nowrap}
+    .seg>input:checked+label{background:rgba(255,255,255,.14); border-color:rgba(255,255,255,.28)}
+
+    .slider{appearance:none; width:140px; height:8px; background:linear-gradient(90deg, rgba(255,255,255,.06), rgba(255,255,255,.04)); border-radius:999px; outline:none; border:1px solid rgba(255,255,255,.14)}
+    .slider::-webkit-slider-thumb{appearance:none; width:18px; height:18px; border-radius:50%; background:var(--accent); border:2px solid #0e1a26; cursor:pointer; box-shadow:0 0 0 4px rgba(137,180,255,.18)}
+    .slider::-moz-range-thumb{width:18px; height:18px; border:none; border-radius:50%; background:var(--accent); cursor:pointer}
+
+    /* Layout: canvas | goals (no overlap) */
+    .canvas-wrap{
+      position:relative;
+      display:grid;
+      grid-template-columns: 1fr 280px;
+      gap:14px;
+      padding:10px;
+      align-items:start;
+      overflow:auto;
+    }
+
+    .canvas-box{
+      position:relative; resize:vertical; overflow:auto;
+      width:100%;
+      /* Clamp height and correct for global --ui-scale so visual size matches intent */
+      height: clamp(
+        calc(var(--canvas-min-vis) * var(--ui-comp)),
+        calc((100dvh - var(--chrome)) * var(--ui-comp)),
+        calc(var(--canvas-max-vis) * var(--ui-comp))
+      );
+      max-height: calc(var(--canvas-max-vis) * var(--ui-comp));
+      max-width:100%;
+      border-radius:18px;
+    }
+
+    canvas{display:block; background:#0a0e14; border:1px solid var(--stroke); border-radius:18px; image-rendering:pixelated; box-shadow:0 8px 40px rgba(0,0,0,.35), 0 0 0 1px rgba(255,255,255,.06) inset; outline:none}
+    .hint{position:absolute; left:16px; bottom:16px; color:var(--muted); font-size:.85rem; background:rgba(0,0,0,.35); padding:.25rem .5rem; border-radius:8px; border:1px solid rgba(255,255,255,.1)}
+
+    .sidepanel{position:relative; display:flex; flex-direction:column; gap:12px; min-width:260px}
+    .card{padding:12px; border-radius:18px}
+    .card h4{margin:.2rem 0 .5rem 0; font-size:.95rem; color:#d9e1ee}
+    .ach-list{display:grid; gap:6px}
+    .ach{display:flex; justify-content:space-between; align-items:center; padding:.45rem .6rem; border-radius:12px; background:rgba(255,255,255,.06); border:1px solid var(--stroke)}
+    .ach .k{opacity:.9}
+
+    .role-pop{position:absolute; transform:translateY(42px); border:1px solid var(--stroke); border-radius:14px; padding:8px; display:none; gap:6px}
+    .role-pop.open{display:flex}
+
+    @media (max-width:900px){
+      .canvas-wrap{grid-template-columns: 1fr}
+      .sidepanel{grid-row:3}
+    }
+  
+    /* === Hide NPC spawn control & role popover === */
+    #m-people,
+    label[for="m-people"],
+    #rolePop { display: none !important; }
+
+</style>
+</head>
+<body>
+  <div class="ui-root">
+  <div class="shell">
+    <!-- Header -->
+    <div class="glass" style="margin:10px 10px 8px; padding:10px;">
+      <div class="toolbar" role="toolbar" aria-label="StikBox controls">
+        <div class="brand">
+          <div class="logo" aria-hidden></div>
+          <div>
+            <div style="font-weight:800; letter-spacing:.2px">StikBox</div>
+            <div style="color:var(--muted); font-size:.86rem">V 0.0.1</div>
+          </div>
+          <span class="beta">BETA</span>
+        </div>
+
+        <div class="group" title="Materials">
+          <div class="seg" id="materialSeg" role="radiogroup" aria-label="Material">
+            <input type="radio" name="mat" id="m-sand" value="sand" checked><label for="m-sand" title="Sand">🟨</label>
+            <input type="radio" name="mat" id="m-water" value="water"><label for="m-water" title="Water">💧</label>
+            <input type="radio" name="mat" id="m-stone" value="stone"><label for="m-stone" title="Stone">🪨</label>
+            <input type="radio" name="mat" id="m-metal" value="metal"><label for="m-metal" title="Metal">🔩</label>
+            <input type="radio" name="mat" id="m-ice" value="ice"><label for="m-ice" title="Ice">🧊</label>
+            <input type="radio" name="mat" id="m-oil" value="oil"><label for="m-oil" title="Oil">🛢️</label>
+            <input type="radio" name="mat" id="m-lava" value="lava"><label for="m-lava" title="Lava">🌋</label>
+            <input type="radio" name="mat" id="m-fire" value="fire"><label for="m-fire" title="Fire">🔥</label>
+            <input type="radio" name="mat" id="m-smoke" value="smoke"><label for="m-smoke" title="Smoke">☁️</label>
+            <input type="radio" name="mat" id="m-wire" value="wire"><label for="m-wire" title="Wire">🔌</label>
+            <input type="radio" name="mat" id="m-spark" value="spark"><label for="m-spark" title="Spark">⚡</label>
+            <input type="radio" name="mat" id="m-tnt" value="tnt"><label for="m-tnt" title="TNT">🧨</label>
+            <input type="radio" name="mat" id="m-people" value="people"><label for="m-people" title="Spawn person">👤</label>
+            <input type="radio" name="mat" id="m-erase" value="erase"><label for="m-erase" title="Erase">🧽</label>
+          </div>
+        </div>
+
+        <div class="group" title="Brush">
+          <label>Brush</label>
+          <button class="btn" id="brushDec">–</button>
+          <input id="brush" class="slider" type="range" min="1" max="28" value="8" />
+          <button class="btn" id="brushInc">+</button>
+          <span id="brushOut" style="opacity:.75">8 px</span>
+          <div class="seg" id="shapeSeg" role="radiogroup" aria-label="Brush shape">
+            <input type="radio" name="shape" id="s-circ" value="circle" checked><label for="s-circ" title="Circle">◯</label>
+            <input type="radio" name="shape" id="s-square" value="square"><label for="s-square" title="Square">■</label>
+            <input type="radio" name="shape" id="s-spray" value="spray"><label for="s-spray" title="Spray">⋅⋅⋅</label>
+          </div>
+          <div class="seg" id="eraseSeg" role="radiogroup" aria-label="Erase mode">
+            <input type="radio" name="erase" id="e-all" value="all" checked><label for="e-all">Erase: All</label>
+            <input type="radio" name="erase" id="e-type" value="type"><label for="e-type">Erase: Current</label>
+          </div>
+        </div>
+
+        <div class="group" title="Simulation">
+          <button class="btn" id="toggle">⏸️ Pause</button>
+          <button class="btn" id="step">⏭️ Step</button>
+          <label>Speed</label>
+          <input id="speed" class="slider" type="range" min="0" max="4" step=".25" value="1.5" />
+          <button class="btn" id="undo">↶ Undo</button>
+          <button class="btn" id="redo">↷ Redo</button>
+        </div>
+
+        <div class="group" title="View">
+          <button class="btn" id="helpBtn">❔ Help</button>
+          <button class="btn" id="zoomIn">＋</button>
+          <button class="btn" id="zoomOut">－</button>
+          <button class="btn" id="zoomReset">100%</button>
+          <label style="display:inline-flex; align-items:center; gap:.35rem"><input type="checkbox" id="togHeat"> Heatmap</label>
+          <label style="display:inline-flex; align-items:center; gap:.35rem"><input type="checkbox" id="togDay" checked> Day/Night</label>
+          <label style="display:inline-flex; align-items:center; gap:.35rem"><input type="checkbox" id="panMode"> Pan</label>
+          <label style="display:inline-flex; align-items:center; gap:.35rem"><input type="checkbox" id="autosave" checked> Autosave</label>
+        </div>
+
+        <div class="group" title="Save/Load">
+          <button class="btn" id="save">💾 Save</button>
+          <button class="btn" id="load">📂 Load</button>
+          <input type="file" id="file" accept="application/json" style="display:none" />
+        </div>
+
+        <span id="stat" style="opacity:.85; padding:.25rem .5rem; border:1px solid var(--stroke); border-radius:10px; background:rgba(255,255,255,.05)">0×0 • 0 fps • 0 parts</span>
+      </div>
+    </div>
+
+    <div class="canvas-wrap">
+      <div class="canvas-box"><canvas id="c" tabindex="0" aria-label="StikBox world"></canvas></div>
+      <div class="hint">Two-finger pinch to zoom • Hold <kbd>Shift</kbd> to place faster</div>
+
+      <div class="sidepanel">
+        <div class="card glass-soft">
+          <h4 id="goalsHeader">Goals (coming soon)</h4>
+          <div class="ach-list" id="achList" style="display:none"></div>
+        </div>
+        <div class="card glass-soft">
+          <h4>Tips</h4>
+          <div style="color:#c5cedb; font-size:.92rem; line-height:1.35">
+            Build a stone dam, pour oil over water, add spark → 🔥. <br>
+            Miners drop piles, builders collect, farmers plant by water, firefighters douse flames.
+          </div>
+        </div>
+      </div>
+
+      <!-- Role popover -->
+      <div class="role-pop glass-soft" id="rolePop">
+        <button class="btn" data-role="builder">🧱 Builder</button>
+        <button class="btn" data-role="miner">⛏️ Miner</button>
+        <button class="btn" data-role="farmer">🌱 Farmer</button>
+        <button class="btn" data-role="firefighter">🚒 Firefighter</button>
+        <button class="btn" data-role="random">🎲 Random</button>
+      </div>
+
+      <!-- Help Modal -->
+      <div id="helpModal" class="glass" style="position:fixed; inset:0; display:none; place-items:center; background:rgba(0,0,0,.35); z-index:50;">
+        <div class="glass-soft" style="max-width:720px; width:calc(100% - 40px); border-radius:18px; padding:14px; border:1px solid rgba(255,255,255,.18); box-shadow:0 30px 80px rgba(0,0,0,.45)">
+          <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:8px">
+            <h3 style="margin:0; font-size:1.05rem; letter-spacing:.2px">StikBox — Help & Shortcuts</h3>
+            <button class="btn" id="helpClose">✕</button>
+          </div>
+          <div style="display:grid; gap:8px; color:#d9e1ee; font-size:.95rem; line-height:1.4">
+            <div class="glass-soft" style="padding:10px">
+              <b>Controls</b>
+              <ul style="margin:.4rem 0; padding-left:1.1rem">
+                <li><b>Click / drag</b>: paint using selected material</li>
+                <li><b>Shift</b> while painting: place faster</li>
+                <li><b>Pan</b> toggle: drag canvas to pan; pinch to zoom</li>
+                <li><b>Space</b>: pause/play • <b>+</b>/<b>-</b>: brush size • <b>R</b>: reset</li>
+              </ul>
+            </div>
+            <div class="glass-soft" style="padding:10px">
+              <b>People</b>
+              <ul style="margin:.4rem 0; padding-left:1.1rem">
+                <li>Spawn with 👤. They wander with gravity.</li>
+                <li>Roles: 🧱 Builder, ⛏️ Miner, 🌱 Farmer, 🚒 Firefighter.</li>
+                <li>Firefighters douse adjacent 🔥; Miners chip stone into piles; Farmers till sand near water.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div> <!-- /canvas-wrap -->
+  </div> <!-- /shell -->
+  </div> <!-- /ui-root -->
+
+<script>
+(() => {
+  // ===== Types & colors =====
+  const T = { EMPTY:0, SAND:1, WATER:2, STONE:3, LAVA:4, OIL:5, FIRE:6, SMOKE:7, METAL:8, ICE:9, SEED:10, PLANT:11, WIRE:12, SPARK:13, TNT:14, PEOPLE:15, ROAD:16, LAMP:17, FARMLAND:18, PILE:19 };
+  const N2T = Object.fromEntries(Object.entries(T).map(([k,v]) => [v,k]));
+  const C = {};
+  C[T.EMPTY]=0x0a0e14; C[T.SAND]=0xE2C044; C[T.WATER]=0x3FA7D6; C[T.STONE]=0x8E9AA6; C[T.LAVA]=0xF56F3F; C[T.OIL]=0x2f2a24; C[T.FIRE]=0xFFA83A; C[T.SMOKE]=0x6e7a86; C[T.METAL]=0xB2B9C7; C[T.ICE]=0x9ED5FF; C[T.SEED]=0xA3C76D; C[T.PLANT]=0x5CC96B; C[T.WIRE]=0xCC3B3B; C[T.SPARK]=0xFFFF66; C[T.TNT]=0xD34A4A; C[T.PEOPLE]=0xF2A6B3; C[T.ROAD]=0x6b5644; C[T.LAMP]=0xE6C55A; C[T.FARMLAND]=0x4a3b2e; C[T.PILE]=0x7d6a52;
+
+  // === Goals toggle ===
+  const GOALS_ENABLED = false;
+  
+  // NPC master toggle
+  const NPC_ENABLED = false;
+function refreshGoalsUI(){
+    const header = document.getElementById('goalsHeader');
+    if (!header) return;
+    header.textContent = GOALS_ENABLED ? 'Goals' : 'Goals (coming soon)';
+    const list = document.getElementById('achList');
+    if (list) list.style.display = GOALS_ENABLED ? '' : 'none';
+  }
+
+  // ===== NO COINS (removed) =====
+  // - removed: COINS_ENABLED, coins, coinPill, setCoins, spend, earn, COST
+  // - placement no longer checks cost
+
+  // UI refs
+  const canvas = document.getElementById('c');
+  const ctx = canvas.getContext('2d', {alpha:false});
+
+  const $mat = document.getElementById('materialSeg');
+  const $brush = document.getElementById('brush');
+  const $brushOut = document.getElementById('brushOut');
+  const $shape = document.getElementById('shapeSeg');
+  const $erase = document.getElementById('eraseSeg');
+  const $toggle = document.getElementById('toggle');
+  const $step = document.getElementById('step');
+  const $speed = document.getElementById('speed');
+  const $zoomIn = document.getElementById('zoomIn');
+  const $zoomOut = document.getElementById('zoomOut');
+  const $zoomReset = document.getElementById('zoomReset');
+  const $heat = document.getElementById('togHeat');
+  const $day = document.getElementById('togDay');
+  const $pan = document.getElementById('panMode');
+  const $autosave = document.getElementById('autosave');
+  const $save = document.getElementById('save');
+  const $load = document.getElementById('load');
+  const $file = document.getElementById('file');
+  const $stat = document.getElementById('stat');
+  const $rolePop = document.getElementById('rolePop');
+  const $brushDec = document.getElementById('brushDec');
+  const $brushInc = document.getElementById('brushInc');
+  const $peopleBtn = document.querySelector('label[for="m-people"]');
+  const helpModal = document.getElementById('helpModal'); const helpBtn = document.getElementById('helpBtn');
+
+  // World settings
+  let DPI = Math.max(1, Math.min(window.devicePixelRatio||1, 2));
+  let cell = 5; let W=0, H=0; // grid dims
+  let grid = new Uint8Array(0);   // type
+  let aux = new Uint16Array(0);   // lifetime/temperature/amount
+  let updated = new Uint8Array(0);// step guard
+  let activity = new Uint8Array(0);// motion heatmap
+
+  // NPC state arrays
+  let npcDir = new Uint8Array(0);     // 0=left,1=right
+  let npcTask = new Uint8Array(0);    // reserved
+  let npcInvStone = new Uint16Array(0);
+  let npcRole = new Uint8Array(0);    // 0 builder,1 miner,2 farmer,3 firefighter
+  let npcTX = new Int16Array(0), npcTY = new Int16Array(0);
+
+  // View state
+  let scale = 1; let offX = 0, offY = 0; let panning=false; let panStart=null;
+  let activePointers = new Map(); let pinchStartDist=0, pinchStartScale=1;
+
+  // Tools state
+  let tool = 'sand'; let brush = 8; let shape = 'circle'; let eraseMode='all';
+  let playing = true;
+  let speedMul = 1; // set from slider after init
+  let painting=false; let shiftDown=false;
+  let spawnRole = 'random';
+
+  // Particles (visual only)
+  const particles = [];
+
+  // Achievements (counters only)
+  const ach = { huts:0, firesOut:0, crops:0, peopleBest:0 };
+  let growthCooldown = 0;
+
+  // History (Undo/Redo)
+  const hist = []; const redo = []; const MAX_HIST=20;
+  function pushHistory(label){ hist.push({g:grid.slice(), a:aux.slice(), label}); if(hist.length>MAX_HIST) hist.shift(); redo.length=0; }
+  function undo(){ if(!hist.length) return; const snap=hist.pop(); redo.push({g:grid.slice(), a:aux.slice(), label:'redo'}); grid.set(snap.g); aux.set(snap.a); }
+  function redoAct(){ if(!redo.length) return; const snap=redo.pop(); pushHistory('undo'); grid.set(snap.g); aux.set(snap.a); }
+
+  // Audio (tiny beeps)
+  let AC=null; function initAudio(){ if(!AC){ const Ctx=window.AudioContext||window.webkitAudioContext; if(Ctx) AC=new Ctx(); } }
+  function beep(freq=500, dur=0.08, type='sine', gain=0.03){ if(!AC) return; const o=AC.createOscillator(); const g=AC.createGain(); o.type=type; o.frequency.value=freq; g.gain.value=gain; o.connect(g).connect(AC.destination); o.start(); o.stop(AC.currentTime+dur); }
+  function chime(){ beep(660,0.05,'sine',0.04); setTimeout(()=>beep(880,0.06,'sine',0.04),60); }
+  function boom(){ beep(120,0.15,'square',0.05); setTimeout(()=>beep(60,0.2,'sawtooth',0.04),120); }
+  function sizzle(){ beep(1000,0.03,'triangle',0.02); }
+
+  // Helpers
+  const idx=(x,y)=> y*W + x;
+  const inb=(x,y)=> x>=0 && y>=0 && x<W && y<H;
+  const clamp=(v,a,b)=> v<a?a: v>b?b: v;
+  // === NPC disable helpers ===
+  function purgePeople(){
+    if(NPC_ENABLED) return;
+    for(let i=0;i<grid.length;i++){
+      if(grid[i]===T.PEOPLE){
+        grid[i]=T.EMPTY; aux[i]=0;
+        if(npcDir.length) npcDir[i]=0;
+        if(npcTask.length) npcTask[i]=0;
+        if(npcInvStone.length) npcInvStone[i]=0;
+        if(npcRole.length) npcRole[i]=0;
+        if(npcTX.length) npcTX[i]=0;
+        if(npcTY.length) npcTY[i]=0;
+      }
+    }
+  }
+  function disableNPCsNow(){
+    const pplInput=document.getElementById('m-people');
+    const pplLabel=document.querySelector('label[for="m-people"]');
+    if(pplInput){ pplInput.disabled=true; }
+    if(pplLabel){
+      pplLabel.style.opacity='.4';
+      pplLabel.style.pointerEvents='none';
+      pplLabel.title='People disabled for now';
+    }
+    const pop=document.getElementById('rolePop'); if(pop) pop.classList.remove('open');
+  }
+
+
+  // ===== Resizing logic (auto-expands world to fill box) =====
+  function sizeCanvasToBox(){
+    const styleW = Math.max(320, box.clientWidth|0);
+    const styleH = Math.max(260, box.clientHeight|0);
+    const pxW = Math.floor(styleW * DPI);
+    const pxH = Math.floor(styleH * DPI);
+    canvas.style.width = styleW + 'px';
+    canvas.style.height = styleH + 'px';
+    canvas.width = pxW;
+    canvas.height = pxH;
+  }
+  function computeTargetWH(){
+    const styleW = Math.max(320, box.clientWidth|0);
+    const styleH = Math.max(260, box.clientHeight|0);
+    return {
+      Wt: Math.max(72, Math.floor(styleW / cell)),
+      Ht: Math.max(48, Math.floor(styleH / cell))
+    };
+  }
+  function resizeWorldTo(targetW, targetH){
+    if(targetW===W && targetH===H){ sizeCanvasToBox(); return; }
+    const oldW=W, oldH=H;
+    const oldGrid=grid, oldAux=aux, oldNpcDir=npcDir, oldNpcTask=npcTask, oldNpcInv=npcInvStone, oldNpcRole=npcRole, oldNpcTX=npcTX, oldNpcTY=npcTY;
+
+    W=targetW; H=targetH;
+    grid=new Uint8Array(W*H);
+    aux=new Uint16Array(W*H);
+    updated=new Uint8Array(W*H);
+    activity=new Uint8Array(W*H);
+    npcDir=new Uint8Array(W*H);
+    npcTask=new Uint8Array(W*H);
+    npcInvStone=new Uint16Array(W*H);
+    npcRole=new Uint8Array(W*H);
+    npcTX=new Int16Array(W*H);
+    npcTY=new Int16Array(W*H);
+
+    // Copy old content; align top-left and push down if growing
+    const yOffset = Math.max(0, H - oldH);
+    const copyH = Math.min(oldH, H);
+    const copyW = Math.min(oldW, W);
+    for(let y=0; y<copyH; y++){
+      const srcY = y;
+      const dstY = y + yOffset;
+      for(let x=0; x<copyW; x++){
+        const s = srcY*oldW + x;
+        const d = dstY*W + x;
+        grid[d] = oldGrid[s];
+        aux[d] = oldAux[s];
+        npcDir[d] = oldNpcDir[s];
+        npcTask[d] = oldNpcTask[s];
+        npcInvStone[d] = oldNpcInv[s];
+        npcRole[d] = oldNpcRole[s];
+        npcTX[d] = oldNpcTX[s];
+        npcTY[d] = oldNpcTY[s];
+      }
+    }
+    for(let x=0;x<W;x++) grid[(H-1)*W + x] = T.STONE; // ground
+    sizeCanvasToBox();
+    updateStats();
+  }
+  function initSizing(){
+    const {Wt,Ht} = computeTargetWH();
+    W=Wt; H=Ht;
+    grid=new Uint8Array(W*H);
+    aux=new Uint16Array(W*H);
+    updated=new Uint8Array(W*H);
+    activity=new Uint8Array(W*H);
+    npcDir=new Uint8Array(W*H);
+    npcTask=new Uint8Array(W*H);
+    npcInvStone=new Uint16Array(W*H);
+    npcRole=new Uint8Array(W*H);
+    npcTX=new Int16Array(W*H);
+    npcTY=new Int16Array(W*H);
+    for(let x=0;x<W;x++) grid[idx(x,H-1)]=T.STONE; // ground
+    sizeCanvasToBox();
+    updateStats();
+  }
+
+  const box = document.querySelector('.canvas-box');
+
+  const ro = new ResizeObserver(()=>{
+    DPI=Math.max(1, Math.min(window.devicePixelRatio||1, 2));
+    const {Wt,Ht} = computeTargetWH();
+    resizeWorldTo(Wt, Ht);
+  });
+  ro.observe(box);
+  window.addEventListener('resize', ()=>{
+    DPI=Math.max(1, Math.min(window.devicePixelRatio||1, 2));
+    const {Wt,Ht} = computeTargetWH();
+    resizeWorldTo(Wt, Ht);
+  }, {passive:true});
+
+  // ===== Painting =====
+  function viewToGrid(ev){
+    const rect=canvas.getBoundingClientRect();
+    const px=(ev.clientX-rect.left)*(canvas.width/rect.width);
+    const py=(ev.clientY-rect.top)*(canvas.height/rect.height);
+    const wx=(px - offX)/(DPI*cell*scale);
+    const wy=(py - offY)/(DPI*cell*scale);
+    return {x:Math.floor(wx), y:Math.floor(wy)};
+  }
+  function stampAt(gx,gy){
+    const r=Math.max(1, Math.floor(brush/cell));
+    if(shape==='spray'){
+      for(let i=0;i<r*8;i++){
+        const a=Math.random()*Math.PI*2;
+        const d=Math.random()*r;
+        placeAt(gx+Math.round(Math.cos(a)*d), gy+Math.round(Math.sin(a)*d));
+      }
+      return;
+    }
+    for(let y=-r;y<=r;y++){
+      for(let x=-r;x<=r;x++){
+        if(shape==='circle' && (x*x+y*y>r*r)) continue;
+        placeAt(gx+x, gy+y);
+      }
+    }
+  }
+  function placeAt(x,y){
+    if(!inb(x,y)) return;
+    const i=idx(x,y);
+    if(tool==='people' && typeof NPC_ENABLED!=='undefined' && !NPC_ENABLED){ return; }
+    if(tool==='air'){ return; }
+    if(tool==='erase'){
+      // Erase behavior (all or current type)
+      if(eraseMode==='all'){ grid[i]=T.EMPTY; aux[i]=0; }
+      else {
+        const t=nameToType(tool);
+        if(grid[i]===t){ grid[i]=T.EMPTY; aux[i]=0; }
+        else { grid[i]=T.EMPTY; aux[i]=0; } // fallback to full erase
+      }
+      return;
+    }
+
+    // NO coin spending — always place
+    const t=nameToType(tool);
+    grid[i]=t;
+    if(t===T.FIRE) aux[i]=8+Math.floor(Math.random()*8);
+    if(t===T.SMOKE) aux[i]=10+Math.floor(Math.random()*20);
+    if(t===T.SPARK) aux[i]=3;
+    if(t===T.TNT) aux[i]=0;
+    if(t===T.PEOPLE){
+      npcDir[i]=Math.random()<0.5?0:1;
+      npcTask[i]=0;
+      npcInvStone[i]=20+Math.floor(Math.random()*40);
+      npcRole[i]=roleToId(spawnRole);
+      npcTX[i]=-1; npcTY[i]=-1;
+    }
+  }
+  function nameToType(n){ switch(n){
+    case 'sand':return T.SAND; case 'water':return T.WATER; case 'stone':return T.STONE;
+    case 'lava':return T.LAVA; case 'oil':return T.OIL; case 'fire':return T.FIRE;
+    case 'smoke':return T.SMOKE; case 'metal':return T.METAL; case 'ice':return T.ICE;
+    case 'seed':return T.SEED; case 'plant':return T.PLANT; case 'wire':return T.WIRE;
+    case 'spark':return T.SPARK; case 'tnt':return T.TNT; case 'people':return T.PEOPLE;
+    case 'road':return T.ROAD; case 'lamp':return T.LAMP; case 'farmland':return T.FARMLAND;
+    case 'pile':return T.PILE; default:return T.EMPTY;
+  } }
+  function roleToId(r){ return r==='builder'?0 : r==='miner'?1 : r==='farmer'?2 : r==='firefighter'?3 : Math.floor(Math.random()*4); }
+
+  // ===== Simulation helpers =====
+  function swap(i,j){
+    const t=grid[i]; grid[i]=grid[j]; grid[j]=t;
+    const a=aux[i]; aux[i]=aux[j]; aux[j]=a;
+    updated[j]=1; activity[j]=Math.min(255, activity[j]+20);
+  }
+
+  function igniteNeighbors(x,y){
+    const dirs=[[1,0],[-1,0],[0,1],[0,-1]];
+    for(const [dx,dy] of dirs){
+      const nx=x+dx, ny=y+dy; if(!inb(nx,ny)) continue; const j=idx(nx,ny); const t=grid[j];
+      if(t===T.OIL||t===T.PLANT||t===T.SEED){ grid[j]=T.FIRE; aux[j]=8+Math.floor(Math.random()*8); }
+      if(t===T.TNT && aux[j]===0){ aux[j]=8; }
+      if(t===T.ICE){ grid[j]=T.WATER; }
+    }
+  }
+  function spreadTo(x,y,targets,newT,prob){
+    const dirs=[[1,0],[-1,0],[0,1],[0,-1]];
+    for(const [dx,dy] of dirs){
+      if(Math.random()>prob) continue;
+      const nx=x+dx, ny=y+dy; if(!inb(nx,ny)) continue; const j=idx(nx,ny);
+      if(targets.includes(grid[j])){ grid[j]=newT; aux[j]=8+Math.floor(Math.random()*8); }
+    }
+  }
+  function setNeighbors(x,y,findT,setT){
+    const dirs=[[1,0],[-1,0],[0,1],[0,-1]];
+    for(const [dx,dy] of dirs){
+      const nx=x+dx, ny=y+dy; if(!inb(nx,ny)) continue; const j=idx(nx,ny);
+      if(grid[j]===findT){ grid[j]=setT; aux[j]=0; }
+    }
+  }
+  function explode(cx,cy,r){
+    const r2=r*r;
+    for(let y=-r;y<=r;y++){
+      for(let x=-r;x<=r;x++){
+        if(x*x+y*y>r2) continue;
+        const gx=cx+x, gy=cy+y; if(!inb(gx,gy)) continue; const i=idx(gx,gy);
+        if(grid[i]===T.METAL) continue;
+        if(Math.hypot(x,y)>r-1 && grid[i]!==T.EMPTY){ grid[i]=T.FIRE; aux[i]=6+Math.floor(Math.random()*6); }
+        else { grid[i]=T.EMPTY; aux[i]=0; }
+        activity[i]=200;
+      }
+    }
+    boom();
+  }
+  function adjAny(x,y,arr){
+    const dirs=[[1,0],[-1,0],[0,1],[0,-1]];
+    for(const [dx,dy] of dirs){
+      const nx=x+dx, ny=y+dy;
+      if(nx<0||ny<0||nx>=W||ny>=H) continue;
+      if(arr.includes(grid[idx(nx,ny)])) return true;
+    }
+    return false;
+  }
+
+  // ===== MAIN STEP =====
+  function step(){
+    updated.fill(0);
+
+    // Materials bottom-up
+    for(let y=H-2; y>=0; y--){
+      const leftFirst = Math.random()<0.5;
+      for(let xx=0; xx<W; xx++){
+        const x = leftFirst? xx : (W-1-xx);
+        const i=idx(x,y); const t=grid[i];
+        if(t===T.EMPTY||updated[i]) continue;
+        const ib=idx(x,y+1);
+        const below=inb(x,y+1)?grid[ib]:T.STONE;
+
+        switch(t){
+          case T.SAND: {
+            if(below===T.EMPTY||below===T.WATER||below===T.OIL||below===T.SMOKE) { swap(i,ib); break; }
+            const dirs=Math.random()<0.5?[-1,1]:[1,-1];
+            let moved=false;
+            for(const d of dirs){
+              const nx=x+d, ny=y+1; if(!inb(nx,ny)) continue; const j=idx(nx,ny); const bt=grid[j];
+              if(bt===T.EMPTY||bt===T.WATER||bt===T.OIL||bt===T.SMOKE){ swap(i, j); moved=true; break; }
+            }
+            if(!moved) updated[i]=1; break;
+          }
+          case T.WATER: {
+            if(below===T.EMPTY){ swap(i,ib); break; }
+            const dirs=Math.random()<0.5?[-1,1]:[1,-1];
+            let moved=false;
+            for(const d of dirs){
+              const sx=x+d;
+              if(inb(sx,y) && grid[idx(sx,y)]===T.EMPTY){ swap(i, idx(sx,y)); moved=true; break; }
+            }
+            if(!moved){
+              for(const d of dirs){
+                const nx=x+d, ny=y+1;
+                if(inb(nx,ny) && grid[idx(nx,ny)]===T.EMPTY){ swap(i, idx(nx,ny)); moved=true; break; }
+              }
+            }
+            if(adjAny(x,y,[T.LAVA])){ grid[i]=T.SMOKE; aux[i]=8+Math.floor(Math.random()*10); setNeighbors(x,y,T.LAVA, T.STONE); }
+            if(adjAny(x,y,[T.FIRE])){ grid[i]=T.SMOKE; aux[i]=6+Math.floor(Math.random()*6); }
+            updated[i]=1; break;
+          }
+          case T.OIL: {
+            if(below===T.EMPTY){ swap(i,ib); break; }
+            const dirs=Math.random()<0.5?[-1,1]:[1,-1];
+            let moved=false;
+            for(const d of dirs){
+              const sx=x+d;
+              if(inb(sx,y) && grid[idx(sx,y)]===T.EMPTY){ swap(i, idx(sx,y)); moved=true; break; }
+            }
+            if(!moved){
+              for(const d of dirs){
+                const nx=x+d, ny=y+1;
+                if(inb(nx,ny) && grid[idx(nx,ny)]===T.EMPTY){ swap(i, idx(nx,ny)); moved=true; break; }
+              }
+            }
+            if(adjAny(x,y,[T.FIRE,T.LAVA,T.SPARK])){ grid[i]=T.FIRE; aux[i]=10+Math.floor(Math.random()*10); }
+            updated[i]=1; break;
+          }
+          case T.LAVA: {
+            if((aux[i]&1)===0){ if(below===T.EMPTY){ swap(i,ib); break; } }
+            const dirs=Math.random()<0.5?[-1,1]:[1,-1];
+            let moved=false;
+            for(const d of dirs){
+              const sx=x+d;
+              if(inb(sx,y) && grid[idx(sx,y)]===T.EMPTY){ swap(i, idx(sx,y)); moved=true; break; }
+            }
+            if(!moved){
+              for(const d of dirs){
+                const nx=x+d, ny=y+1;
+                if(inb(nx,ny) && grid[idx(nx,ny)]===T.EMPTY){ swap(i, idx(nx,ny)); moved=true; break; }
+              }
+            }
+            if(adjAny(x,y,[T.WATER,T.ICE]) || Math.random()<0.01){ grid[i]=T.STONE; aux[i]=0; break; }
+            igniteNeighbors(x,y);
+            aux[i]=(aux[i]+1)&3;
+            updated[i]=1; break;
+          }
+          case T.ICE: {
+            if(adjAny(x,y,[T.LAVA,T.FIRE])){ grid[i]=T.WATER; break; }
+            updated[i]=1; break;
+          }
+          case T.METAL:
+          case T.STONE:
+          case T.WIRE:
+          case T.TNT:
+          case T.ROAD:
+          case T.LAMP:
+          case T.FARMLAND:
+          case T.PILE: { updated[i]=1; break; }
+
+          case T.SEED: {
+            if(adjAny(x,y,[T.WATER]) && (below!==T.EMPTY)){ grid[i]=T.PLANT; aux[i]=20+Math.floor(Math.random()*40); }
+            if(below===T.EMPTY){ swap(i,ib); break; }
+            updated[i]=1; break;
+          }
+          case T.PLANT: {
+            if(adjAny(x,y,[T.FIRE,T.LAVA])){ grid[i]=T.FIRE; aux[i]=6+Math.floor(Math.random()*6); break; }
+            if(aux[i]>0){
+              aux[i]--;
+              if(inb(x,y-1) && grid[idx(x,y-1)]===T.EMPTY && Math.random()<0.05){
+                grid[idx(x,y-1)]=T.PLANT; aux[idx(x,y-1)]=10;
+              }
+            }
+            updated[i]=1; break;
+          }
+          case T.FIRE: {
+            if(aux[i]===0){ grid[i]=T.SMOKE; aux[i]=8+Math.floor(Math.random()*10); break; }
+            aux[i]--;
+            spreadTo(x,y,[T.OIL,T.PLANT,T.SEED], T.FIRE, 0.5);
+            if(adjAny(x,y,[T.WATER, T.ICE])){ grid[i]=T.SMOKE; aux[i]=6+Math.floor(Math.random()*6); break; }
+            updated[i]=1; break;
+          }
+          case T.SMOKE: {
+            if(aux[i]===0){ grid[i]=T.EMPTY; break; }
+            aux[i]--;
+            if(inb(x,y-1) && grid[idx(x,y-1)]===T.EMPTY){ swap(i, idx(x,y-1)); break; }
+            const dirs=Math.random()<0.5?[-1,1]:[1,-1];
+            for(const d of dirs){
+              const nx=x+d;
+              if(inb(nx,y-1) && grid[idx(nx,y-1)]===T.EMPTY){ swap(i, idx(nx,y-1)); break; }
+            }
+            updated[i]=1; break;
+          }
+          case T.SPARK: {
+            if(aux[i]===0){ grid[i]=T.EMPTY; break; }
+            aux[i]--;
+            igniteNeighbors(x,y);
+            const dirs2=[[1,0],[-1,0],[0,1],[0,-1]];
+            for(const [dx,dy] of dirs2){
+              const nx=x+dx, ny=y+dy; if(!inb(nx,ny)) continue; const j=idx(nx,ny);
+              if(grid[j]===T.WIRE){ grid[j]=T.SPARK; aux[j]=2; }
+            }
+            updated[i]=1; break;
+          }
+          case T.PEOPLE: { updated[i]=1; break; }
+        }
+      }
+    }
+
+    // Very light population growth
+    if(growthCooldown>0) growthCooldown--;
+    else {
+      const huts=ach.huts; let ppl=0;
+      for(let i=0;i<grid.length;i++) if(grid[i]===T.PEOPLE) ppl++;
+      if(huts>0 && ppl < huts*2){
+        for(let tries=0; tries<200; tries++){
+          const x=~~(Math.random()*W), y=~~(Math.random()*(H-2));
+          if(grid[idx(x,y)]===T.ROAD && grid[idx(x,y-1)]===T.EMPTY){
+            grid[idx(x,y-1)]=T.PEOPLE; npcRole[idx(x,y-1)]=Math.floor(Math.random()*4);
+            npcInvStone[idx(x,y-1)]=10+~~(Math.random()*20);
+            ach.peopleBest=Math.max(ach.peopleBest, ppl+1);
+            growthCooldown=900; break;
+          }
+        }
+      }
+    }
+
+    // particles update (visual only)
+    for(let p=particles.length-1; p>=0; p--){
+      const P=particles[p]; P.ttl--; P.x+=P.vx; P.y+=P.vy; P.vy+=0.001; if(P.ttl<=0) particles.splice(p,1);
+    }
+  }
+
+  // ===== Rendering =====
+  let buf = null, bctx = null;
+  const img = () => new ImageData(W,H);
+  let frame=null; let tDay=0;
+
+  function ensureBuffer(){
+    if(!buf || buf.width!==W || buf.height!==H){
+      buf = document.createElement('canvas'); buf.width = W; buf.height = H;
+      bctx = buf.getContext('2d', { alpha:false }); bctx.imageSmoothingEnabled = false;
+    }
+  }
+  function lerpColor(a,b,t){ const ar=(a>>16)&255,ag=(a>>8)&255,ab=a&255; const br=(b>>16)&255,bg=(b>>8)&255,bb=b&255; const r=ar+(br-ar)*t|0,g=ag+(bg-ag)*t|0,b2=ab+(bb-ab)*t|0; return (r<<16)|(g<<8)|b2; }
+  function rgb(hex){ return `rgb(${(hex>>16)&255},${(hex>>8)&255},${hex&255})`; }
+  function tweak(hex,d){ let r=(hex>>16)&255,g=(hex>>8)&255,b=hex&255; const cl=v=>v<0?0:v>255?255:v; return ((cl(r+d))<<16)|((cl(g+d))<<8)|(cl(b+d)); }
+
+  function redraw(){
+    if(!frame||frame.width!==W||frame.height!==H) frame=img();
+    const data=frame.data; let p=0;
+    for(let y=0;y<H;y++){
+      for(let x=0;x<W;x++){
+        const t=grid[idx(x,y)];
+        let hex=C[t]||0;
+        if(t===T.SAND||t===T.STONE||t===T.METAL||t===T.ICE||t===T.ROAD||t===T.FARMLAND||t===T.PILE){
+          const d=((x*13+y*7)%8)-4; hex=tweak(hex,d);
+        }
+        data[p++]=(hex>>16)&255; data[p++]=(hex>>8)&255; data[p++]=hex&255; data[p++]=255;
+      }
+    }
+    ensureBuffer();
+    bctx.putImageData(frame,0,0);
+
+    // background
+    ctx.setTransform(1,0,0,1,0,0); ctx.clearRect(0,0,canvas.width,canvas.height);
+    if($day.checked){
+      tDay+=0.002; const phase=(Math.sin(tDay)+1)/2;
+      const top=lerpColor(0x0a0e14,0x1b2a44,phase); const bot=lerpColor(0x06090e,0x0e1622,phase);
+      const g=ctx.createLinearGradient(0,0,0,canvas.height);
+      g.addColorStop(0,rgb(top)); g.addColorStop(1,rgb(bot));
+      ctx.fillStyle=g; ctx.fillRect(0,0,canvas.width,canvas.height);
+    } else {
+      ctx.fillStyle='#0a0e14'; ctx.fillRect(0,0,canvas.width,canvas.height);
+    }
+
+    // world image
+    ctx.imageSmoothingEnabled=false;
+    ctx.setTransform(DPI*scale*cell,0,0,DPI*scale*cell,offX,offY);
+    ctx.drawImage(buf,0,0);
+
+    // motion heat overlay
+    if($heat.checked){
+      ctx.globalAlpha=0.25; ctx.fillStyle='#ff8800';
+      for(let y=0;y<H;y++) for(let x=0;x<W;x++){
+        const a=activity[idx(x,y)]; if(a>0){ ctx.globalAlpha=Math.min(0.3, a/300); ctx.fillRect(x,y,1,1); activity[idx(x,y)]=Math.max(0,a-4); }
+      }
+      ctx.globalAlpha=1;
+    }
+  }
+
+  // ===== Loop & stats =====
+  let last = performance.now();
+  let fpsAcc = 0, frames = 0, fps = 0;
+  let simAcc = 0;
+  const FIXED_DT = 1000 / 60;
+  let stepOnce = false;
+  let countAcc = 0;
+
+  function loop(t){
+    const dt = t - last; last = t;
+
+    // FPS measurement
+    fpsAcc += dt; frames++;
+    if (fpsAcc >= 500){
+      fps = Math.round((frames * 1000) / fpsAcc);
+      frames = 0; fpsAcc = 0;
+    }
+
+    // Fixed-step simulation
+    if (stepOnce){ step(); stepOnce = false; }
+    if (playing){
+      const turbo = (shiftDown ? 2 : 1) * speedMul;
+      simAcc += dt * turbo;
+      let stepsThisFrame = 0;
+      while (simAcc >= FIXED_DT){
+        step();
+        simAcc -= FIXED_DT;
+        if (++stepsThisFrame > 120){ simAcc = 0; break; }
+      }
+    }
+
+    // Periodic UI updates
+    countAcc += dt;
+    if (countAcc > 600){ updateStats(); if($autosave.checked) autosave(); countAcc = 0; }
+
+    redraw();
+    requestAnimationFrame(loop);
+  }
+
+  function updateStats(){
+    const counts=new Uint32Array(24);
+    for(let i=0;i<grid.length;i++) counts[grid[i]]++;
+    const parts=grid.length-counts[T.EMPTY];
+    $stat.textContent=`${W}×${H} • ${fps} fps • ${parts} parts`;
+  }
+
+  // ===== Autosave / Load =====
+  function autosave(){
+    try{
+      const payload={W,H,grid:Array.from(grid),aux:Array.from(aux)};
+      localStorage.setItem('stikbox_autosave', JSON.stringify(payload));
+    }catch(e){}
+  }
+  (function tryAutoLoad(){
+    try{
+      const s=localStorage.getItem('stikbox_autosave');
+      if(!s) return;
+      const obj=JSON.parse(s);
+      if(obj.W&&obj.H&&obj.grid){
+        W=obj.W; H=obj.H;
+        const pxW=W*cell*DPI, pxH=H*cell*DPI;
+        canvas.width=pxW; canvas.height=pxH; canvas.style.width=(W*cell)+'px'; canvas.style.height=(H*cell)+'px';
+        grid=Uint8Array.from(obj.grid);
+        aux=obj.aux?Uint16Array.from(obj.aux):new Uint16Array(W*H);
+        updated=new Uint8Array(W*H); activity=new Uint8Array(W*H);
+        npcDir=new Uint8Array(W*H); npcTask=new Uint8Array(W*H); npcInvStone=new Uint16Array(W*H);
+        npcRole=new Uint8Array(W*H); npcTX=new Int16Array(W*H); npcTY=new Int16Array(W*H);
+      }
+    }catch(e){}
+  })();
+
+  // ===== Events & bindings =====
+  helpBtn.addEventListener('click', ()=>{ helpModal.style.display='grid'; });
+  document.getElementById('helpClose').addEventListener('click', ()=>{ helpModal.style.display='none'; });
+  helpModal.addEventListener('click', (e)=>{ if(e.target===helpModal) helpModal.style.display='none'; });
+
+  // Materials + role popover
+  function showRolePop(){ if(!NPC_ENABLED) return;
+    const rect=$peopleBtn.getBoundingClientRect();
+    const pop=document.getElementById('rolePop');
+    pop.style.left=(rect.left+rect.width/2-180)+'px';
+    pop.style.top=(rect.bottom+6)+'px'; pop.classList.add('open');
+  }
+  function hideRolePop(){ document.getElementById('rolePop').classList.remove('open'); }
+  $mat.addEventListener('change', e=>{
+    if(e.target && e.target.value){ tool=e.target.value; if(tool==='people'){ showRolePop(); } else { hideRolePop(); } }
+  });
+  document.querySelector('label[for="m-people"]').addEventListener('click', ()=>{ showRolePop(); });
+  document.getElementById('rolePop').addEventListener('click', (e)=>{
+    const btn=e.target.closest('button'); if(!btn) return; spawnRole=btn.dataset.role||'random'; hideRolePop();
+  });
+
+  // Brush + shape/erase
+  $brush.addEventListener('input', ()=>{ brush=+$brush.value; $brushOut.textContent=brush+" px"; });
+  $brushDec.addEventListener('click', ()=>{ $brush.value=Math.max(+$brush.value-1, +$brush.min); $brush.dispatchEvent(new Event('input')); });
+  $brushInc.addEventListener('click', ()=>{ $brush.value=Math.min(+$brush.value+1, +$brush.max); $brush.dispatchEvent(new Event('input')); });
+  $shape.addEventListener('change', e=>{ if(e.target && e.target.value) shape=e.target.value; });
+  $erase.addEventListener('change', e=>{ eraseMode=e.target.value; });
+
+  // Sim controls
+  $toggle.addEventListener('click', ()=>{ playing=!playing; $toggle.textContent=playing?'⏸️ Pause':'▶️ Play'; });
+  $step.addEventListener('click', ()=>{ stepOnce=true; });
+  $speed.addEventListener('input', ()=>{ speedMul=+$speed.value; });
+
+  // Zoom
+  function setZoom(z){ scale=clamp(z,0.5,4); }
+  $zoomIn.addEventListener('click', ()=> setZoom(scale*1.15));
+  $zoomOut.addEventListener('click', ()=> setZoom(scale/1.15));
+  $zoomReset.addEventListener('click', ()=>{ scale=1; offX=offY=0; });
+
+  // Save / Load
+  $save.addEventListener('click', ()=>{
+    const payload = { W,H, grid: Array.from(grid), aux: Array.from(aux) };
+    const blob = new Blob([JSON.stringify(payload)], {type:'application/json'});
+    const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='stikbox-world.json'; a.click(); URL.revokeObjectURL(a.href);
+  });
+  $load.addEventListener('click', ()=> $file.click());
+  $file.addEventListener('change', async ()=>{
+    const f=$file.files[0]; if(!f) return;
+    const text=await f.text();
+    try{
+      const obj=JSON.parse(text);
+      if(obj.W&&obj.H&&obj.grid){
+        W=obj.W; H=obj.H;
+        const pxW=W*cell*DPI, pxH=H*cell*DPI;
+        canvas.width=pxW; canvas.height=pxH; canvas.style.width=(W*cell)+'px'; canvas.style.height=(H*cell)+'px';
+        grid=Uint8Array.from(obj.grid); aux=obj.aux?Uint16Array.from(obj.aux):new Uint16Array(W*H);
+        updated=new Uint8Array(W*H); activity=new Uint8Array(W*H);
+        npcDir=new Uint8Array(W*H); npcTask=new Uint8Array(W*H); npcInvStone=new Uint16Array(W*H);
+        npcRole=new Uint8Array(W*H); npcTX=new Int16Array(W*H); npcTY=new Int16Array(W*H);
+        if(typeof NPC_ENABLED!=='undefined' && !NPC_ENABLED){ purgePeople(); }
+        pushHistory('load');
+      }
+    }catch(e){ alert('Invalid world file'); }
+  });
+
+  // Canvas interactions + pinch zoom
+  canvas.addEventListener('pointerdown', (e)=>{
+    initAudio();
+    if($pan.checked){ panning=true; panStart={x:e.clientX,y:e.clientY, offX, offY}; }
+    else { painting=true; pushHistory('paint'); paintEvent(e); }
+    canvas.setPointerCapture(e.pointerId);
+  });
+  canvas.addEventListener('pointermove', (e)=>{
+    if(panning){ const dx=e.clientX-panStart.x, dy=e.clientY-panStart.y; offX=panStart.offX+dx; offY=panStart.offY+dy; }
+    if(painting){ paintEvent(e); if(shiftDown) paintEvent(e); }
+  });
+  canvas.addEventListener('pointerup', ()=>{ painting=false; panning=false; });
+  canvas.addEventListener('pointercancel', ()=>{ painting=false; panning=false; });
+
+  function paintEvent(e){ const g=viewToGrid(e); if(!inb(g.x,g.y)) return; stampAt(g.x,g.y); }
+
+  window.addEventListener('keydown', (e)=>{
+    initAudio();
+    if(e.key===' '){ e.preventDefault(); playing=!playing; $toggle.textContent=playing?'⏸️ Pause':'▶️ Play'; }
+    if(e.key.toLowerCase()==='r'){ grid.fill(0); aux.fill(0); for(let x=0;x<W;x++) grid[idx(x,H-1)]=T.STONE; pushHistory('reset'); }
+    if(e.key==='+'){ $brush.value=Math.min(+$brush.value+1, +$brush.max); $brush.dispatchEvent(new Event('input')); }
+    if(e.key==='-'){ $brush.value=Math.max(+$brush.value-1, +$brush.min); $brush.dispatchEvent(new Event('input')); }
+    if(e.key==='Shift') shiftDown=true;
+  });
+  window.addEventListener('keyup', (e)=>{ if(e.key==='Shift') shiftDown=false; });
+
+  // Init
+  refreshGoalsUI();
+  initSizing();
+  speedMul = +$speed.value;
+  if(typeof NPC_ENABLED!=='undefined' && !NPC_ENABLED){ purgePeople(); disableNPCsNow(); }
+  requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>
