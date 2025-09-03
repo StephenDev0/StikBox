@@ -60,5 +60,4 @@ Pull requests are welcome!
 ---
 
 ## 🏷️ Credits
-Created by **Stephen Bove (@StephenDev0)**  
-Part of the **Stik** project ecosystem.
+Created by **Stephen B (@StephenDev0)**  
