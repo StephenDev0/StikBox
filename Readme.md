@@ -29,7 +29,7 @@ No installation required.
 
 ### Run Locally (optional)
 ```bash
-git clone https://github.com/stephendev0/StikBox.git
+git clone https://stephendev0.github.io/StikBox/
 cd StikBox
 ```
 Then open `index.html` in your browser.
