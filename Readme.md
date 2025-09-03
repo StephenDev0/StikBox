@@ -23,16 +23,9 @@ Build dams, pour oil, spark fires, and experiment with materials like sand, wate
 ### Run Online
 Simply open the website:
 
-👉 https://your-username.github.io/StikBox
+👉 https://stephendev0.github.io/StikBox/
 
 No installation required.
-
-### Run Locally (optional)
-```bash
-git clone https://stephendev0.github.io/StikBox/
-cd StikBox
-```
-Then open `index.html` in your browser.
 
 ---
 
@@ -63,7 +56,6 @@ See [LICENSE.md](LICENSE.md) for full details.
 
 ## 💡 Contributing
 Pull requests are welcome!  
-For major changes, please open an issue first to discuss your ideas.
 
 ---
 
