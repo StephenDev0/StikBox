@@ -184,10 +184,11 @@
       .sidepanel{grid-row:3}
     }
   
-    /* === Hide NPC spawn control & role popover === */
-    #m-people,
-    label[for="m-people"],
-    #rolePop { display: none !important; }
+    /* NPC controls visible */
+    /* Hide portal UI when disabled */
+    #m-portalB, label[for="m-portalB"],
+    #m-portalO, label[for="m-portalO"],
+    .group[title="Portals"] { display:none !important; }
 
 </style>
 </head>
@@ -201,7 +202,7 @@
           <div class="logo" aria-hidden></div>
           <div>
             <div style="font-weight:800; letter-spacing:.2px">StikBox</div>
-            <div style="color:var(--muted); font-size:.86rem">V 0.0.1</div>
+            <div style="color:var(--muted); font-size:.86rem">V 0.0.2</div>
           </div>
           <span class="beta">BETA</span>
         </div>
@@ -213,12 +214,29 @@
             <input type="radio" name="mat" id="m-stone" value="stone"><label for="m-stone" title="Stone">🪨</label>
             <input type="radio" name="mat" id="m-metal" value="metal"><label for="m-metal" title="Metal">🔩</label>
             <input type="radio" name="mat" id="m-ice" value="ice"><label for="m-ice" title="Ice">🧊</label>
+            <input type="radio" name="mat" id="m-wood" value="wood"><label for="m-wood" title="Wood">🪵</label>
             <input type="radio" name="mat" id="m-oil" value="oil"><label for="m-oil" title="Oil">🛢️</label>
             <input type="radio" name="mat" id="m-lava" value="lava"><label for="m-lava" title="Lava">🌋</label>
             <input type="radio" name="mat" id="m-fire" value="fire"><label for="m-fire" title="Fire">🔥</label>
             <input type="radio" name="mat" id="m-smoke" value="smoke"><label for="m-smoke" title="Smoke">☁️</label>
+            <input type="radio" name="mat" id="m-steam" value="steam"><label for="m-steam" title="Steam">💨</label>
+            <input type="radio" name="mat" id="m-snow" value="snow"><label for="m-snow" title="Snow">❄️</label>
+            <input type="radio" name="mat" id="m-acid" value="acid"><label for="m-acid" title="Acid">🧪</label>
+            <input type="radio" name="mat" id="m-glass" value="glass"><label for="m-glass" title="Glass">🔷</label>
+            <input type="radio" name="mat" id="m-seed" value="seed"><label for="m-seed" title="Seed">🌰</label>
+            <input type="radio" name="mat" id="m-plant" value="plant"><label for="m-plant" title="Plant">🌱</label>
             <input type="radio" name="mat" id="m-wire" value="wire"><label for="m-wire" title="Wire">🔌</label>
             <input type="radio" name="mat" id="m-spark" value="spark"><label for="m-spark" title="Spark">⚡</label>
+            <input type="radio" name="mat" id="m-battery" value="battery"><label for="m-battery" title="Battery">🔋</label>
+            <input type="radio" name="mat" id="m-lamp" value="lamp"><label for="m-lamp" title="Lamp">💡</label>
+            <input type="radio" name="mat" id="m-heater" value="heater"><label for="m-heater" title="Heater">♨️</label>
+            <input type="radio" name="mat" id="m-fan" value="fan"><label for="m-fan" title="Fan">🌀</label>
+            <input type="radio" name="mat" id="m-portalB" value="portalB"><label for="m-portalB" title="Portal Blue">🔵</label>
+            <input type="radio" name="mat" id="m-portalO" value="portalO"><label for="m-portalO" title="Portal Orange">🟠</label>
+            <input type="radio" name="mat" id="m-gas" value="gas"><label for="m-gas" title="Gas">🫧</label>
+            <input type="radio" name="mat" id="m-solar" value="solar"><label for="m-solar" title="Solar">🔆</label>
+            <input type="radio" name="mat" id="m-sensor" value="sensor"><label for="m-sensor" title="Sensor">🎛️</label>
+            <input type="radio" name="mat" id="m-sprinkler" value="sprinkler"><label for="m-sprinkler" title="Sprinkler">🚿</label>
             <input type="radio" name="mat" id="m-tnt" value="tnt"><label for="m-tnt" title="TNT">🧨</label>
             <input type="radio" name="mat" id="m-people" value="people"><label for="m-people" title="Spawn person">👤</label>
             <input type="radio" name="mat" id="m-erase" value="erase"><label for="m-erase" title="Erase">🧽</label>
@@ -259,7 +277,25 @@
           <label style="display:inline-flex; align-items:center; gap:.35rem"><input type="checkbox" id="togHeat"> Heatmap</label>
           <label style="display:inline-flex; align-items:center; gap:.35rem"><input type="checkbox" id="togDay" checked> Day/Night</label>
           <label style="display:inline-flex; align-items:center; gap:.35rem"><input type="checkbox" id="panMode"> Pan</label>
+          <label style="display:inline-flex; align-items:center; gap:.35rem"><input type="checkbox" id="togWaterFX" checked> Water FX</label>
+          <label style="display:inline-flex; align-items:center; gap:.35rem"><input type="checkbox" id="togBloom" checked> Bloom</label>
           <label style="display:inline-flex; align-items:center; gap:.35rem"><input type="checkbox" id="autosave" checked> Autosave</label>
+        </div>
+
+        <div class="group" title="Portals">
+          <label>Portal Facing</label>
+          <div class="seg" id="faceSegB" role="radiogroup" aria-label="Blue portal face">
+            <input type="radio" name="pfaceB" id="pfb-up" value="up" checked><label for="pfb-up" title="Blue: Up">🔵↑</label>
+            <input type="radio" name="pfaceB" id="pfb-right" value="right"><label for="pfb-right" title="Blue: Right">🔵→</label>
+            <input type="radio" name="pfaceB" id="pfb-down" value="down"><label for="pfb-down" title="Blue: Down">🔵↓</label>
+            <input type="radio" name="pfaceB" id="pfb-left" value="left"><label for="pfb-left" title="Blue: Left">🔵←</label>
+          </div>
+          <div class="seg" id="faceSegO" role="radiogroup" aria-label="Orange portal face">
+            <input type="radio" name="pfaceO" id="pfo-up" value="up" checked><label for="pfo-up" title="Orange: Up">🟠↑</label>
+            <input type="radio" name="pfaceO" id="pfo-right" value="right"><label for="pfo-right" title="Orange: Right">🟠→</label>
+            <input type="radio" name="pfaceO" id="pfo-down" value="down"><label for="pfo-down" title="Orange: Down">🟠↓</label>
+            <input type="radio" name="pfaceO" id="pfo-left" value="left"><label for="pfo-left" title="Orange: Left">🟠←</label>
+          </div>
         </div>
 
         <div class="group" title="Save/Load">
@@ -324,6 +360,27 @@
                 <li>Firefighters douse adjacent 🔥; Miners chip stone into piles; Farmers till sand near water.</li>
               </ul>
             </div>
+            <div class="glass-soft" style="padding:10px">
+              <b>New materials</b>
+              <ul style="margin:.4rem 0; padding-left:1.1rem">
+                <li>🪵 Wood: static, flammable near 🔥/🌋/⚡</li>
+                <li>🔷 Glass: inert solid</li>
+                <li>🧪 Acid: flows like water; dissolves stone/metal/plant/ice/wire</li>
+                <li>💨 Steam: rises, then condenses into 💧</li>
+                <li>❄️ Snow: powder like sand; melts to 💧 near heat</li>
+                <li>🌰 Seed + 🌱 Plant: grow near 💧</li>
+                <li>🔋 Battery: powers adjacent 🔌 Wire (⚡ pulses)</li>
+                <li>💡 Lamp: lights up near ⚡</li>
+                <li>♨️ Heater: turns 💧 to 💨, melts 🧊/❄️, ignites fuel</li>
+                <li>🌀 Fan: pushes 💨/☁️/🔥 upward</li>
+                <!-- Portals disabled for now -->
+                <li>🫧 Gas: rises like smoke; ignites into 🔥 with ⚡/🔥/🌋</li>
+                <li>🔆 Solar: emits ⚡ to wires during day</li>
+                <li>🎛️ Sensor: emits ⚡ when near 👤 or 🔥</li>
+                <li>🚿 Sprinkler: emits 💧 when powered by ⚡</li>
+                <li>Glass forging: 🟨 near 🔥/🌋 can become 🔷 over time</li>
+              </ul>
+            </div>
           </div>
         </div>
       </div>
@@ -335,16 +392,19 @@
 <script>
 (() => {
   // ===== Types & colors =====
-  const T = { EMPTY:0, SAND:1, WATER:2, STONE:3, LAVA:4, OIL:5, FIRE:6, SMOKE:7, METAL:8, ICE:9, SEED:10, PLANT:11, WIRE:12, SPARK:13, TNT:14, PEOPLE:15, ROAD:16, LAMP:17, FARMLAND:18, PILE:19 };
+  const T = { EMPTY:0, SAND:1, WATER:2, STONE:3, LAVA:4, OIL:5, FIRE:6, SMOKE:7, METAL:8, ICE:9, SEED:10, PLANT:11, WIRE:12, SPARK:13, TNT:14, PEOPLE:15, ROAD:16, LAMP:17, FARMLAND:18, PILE:19, WOOD:20, GLASS:21, ACID:22, STEAM:23, SNOW:24, BATTERY:25, HEATER:26, FAN:27, PORTAL_B:28, PORTAL_O:29, GAS:30, SOLAR:31, SENSOR:32, SPRINKLER:33 };
   const N2T = Object.fromEntries(Object.entries(T).map(([k,v]) => [v,k]));
   const C = {};
-  C[T.EMPTY]=0x0a0e14; C[T.SAND]=0xE2C044; C[T.WATER]=0x3FA7D6; C[T.STONE]=0x8E9AA6; C[T.LAVA]=0xF56F3F; C[T.OIL]=0x2f2a24; C[T.FIRE]=0xFFA83A; C[T.SMOKE]=0x6e7a86; C[T.METAL]=0xB2B9C7; C[T.ICE]=0x9ED5FF; C[T.SEED]=0xA3C76D; C[T.PLANT]=0x5CC96B; C[T.WIRE]=0xCC3B3B; C[T.SPARK]=0xFFFF66; C[T.TNT]=0xD34A4A; C[T.PEOPLE]=0xF2A6B3; C[T.ROAD]=0x6b5644; C[T.LAMP]=0xE6C55A; C[T.FARMLAND]=0x4a3b2e; C[T.PILE]=0x7d6a52;
+  C[T.EMPTY]=0x0a0e14; C[T.SAND]=0xE2C044; C[T.WATER]=0x3FA7D6; C[T.STONE]=0x8E9AA6; C[T.LAVA]=0xF56F3F; C[T.OIL]=0x2f2a24; C[T.FIRE]=0xFFA83A; C[T.SMOKE]=0x6e7a86; C[T.METAL]=0xB2B9C7; C[T.ICE]=0x9ED5FF; C[T.SEED]=0xA3C76D; C[T.PLANT]=0x5CC96B; C[T.WIRE]=0xCC3B3B; C[T.SPARK]=0xFFFF66; C[T.TNT]=0xD34A4A; C[T.PEOPLE]=0xF2A6B3; C[T.ROAD]=0x6b5644; C[T.LAMP]=0xE6C55A; C[T.FARMLAND]=0x4a3b2e; C[T.PILE]=0x7d6a52; C[T.WOOD]=0x7a5232; C[T.GLASS]=0xa7d7ff; C[T.ACID]=0x86f56f; C[T.STEAM]=0xbddff7; C[T.SNOW]=0xeaf6ff; C[T.BATTERY]=0xff7a7a; C[T.HEATER]=0xffaa55; C[T.FAN]=0x5aa7ff; C[T.PORTAL_B]=0x4aa8ff; C[T.PORTAL_O]=0xff9a3b; C[T.GAS]=0xa0ffc0; C[T.SOLAR]=0xfff176; C[T.SENSOR]=0x9c88ff; C[T.SPRINKLER]=0x5cd4ff;
+  const SOLID = new Set([T.SAND,T.STONE,T.METAL,T.ICE,T.ROAD,T.FARMLAND,T.PILE,T.WOOD,T.GLASS,T.LAMP,T.WIRE,T.BATTERY,T.HEATER,T.FAN,T.PORTAL_B,T.PORTAL_O,T.SOLAR,T.SENSOR,T.SPRINKLER,T.TNT]);
 
   // === Goals toggle ===
   const GOALS_ENABLED = false;
   
   // NPC master toggle
-  const NPC_ENABLED = false;
+  const NPC_ENABLED = true;
+  // Portals master toggle
+  const PORTALS_ENABLED = false;
 function refreshGoalsUI(){
     const header = document.getElementById('goalsHeader');
     if (!header) return;
@@ -375,6 +435,8 @@ function refreshGoalsUI(){
   const $heat = document.getElementById('togHeat');
   const $day = document.getElementById('togDay');
   const $pan = document.getElementById('panMode');
+  const $waterFX = document.getElementById('togWaterFX');
+  const $bloom = document.getElementById('togBloom');
   const $autosave = document.getElementById('autosave');
   const $save = document.getElementById('save');
   const $load = document.getElementById('load');
@@ -384,6 +446,8 @@ function refreshGoalsUI(){
   const $brushDec = document.getElementById('brushDec');
   const $brushInc = document.getElementById('brushInc');
   const $peopleBtn = document.querySelector('label[for="m-people"]');
+  const $faceB = document.getElementById('faceSegB');
+  const $faceO = document.getElementById('faceSegO');
   const helpModal = document.getElementById('helpModal'); const helpBtn = document.getElementById('helpBtn');
 
   // World settings
@@ -411,9 +475,14 @@ function refreshGoalsUI(){
   let speedMul = 1; // set from slider after init
   let painting=false; let shiftDown=false;
   let spawnRole = 'random';
+  let portalFaceB = 'up';
+  let portalFaceO = 'up';
+  const faceToDir = f => f==='up'?{dx:0,dy:-1}: f==='right'?{dx:1,dy:0}: f==='down'?{dx:0,dy:1}: {dx:-1,dy:0};
+  const dirToFace = (dx,dy)=> dx===0&&dy===-1?0: dx===1&&dy===0?1: dy===1&&dx===0?2:3; // 0 up 1 right 2 down 3 left
 
   // Particles (visual only)
   const particles = [];
+  function addParticle(x,y,color, vx,vy, ttl=40, r=0.5){ particles.push({x,y,color,vx,vy,ttl,r}); }
 
   // Achievements (counters only)
   const ach = { huts:0, firesOut:0, crops:0, peopleBest:0 };
@@ -461,6 +530,11 @@ function refreshGoalsUI(){
       pplLabel.title='People disabled for now';
     }
     const pop=document.getElementById('rolePop'); if(pop) pop.classList.remove('open');
+  }
+  function purgePortals(){
+    if(!PORTALS_ENABLED){
+      for(let i=0;i<grid.length;i++) if(grid[i]===T.PORTAL_B||grid[i]===T.PORTAL_O){ grid[i]=T.EMPTY; aux[i]=0; }
+    }
   }
 
 
@@ -600,9 +674,18 @@ function refreshGoalsUI(){
 
     // NO coin spending — always place
     const t=nameToType(tool);
+    if(!PORTALS_ENABLED && (t===T.PORTAL_B || t===T.PORTAL_O)) return; // portals disabled
     grid[i]=t;
     if(t===T.FIRE) aux[i]=8+Math.floor(Math.random()*8);
     if(t===T.SMOKE) aux[i]=10+Math.floor(Math.random()*20);
+    if(t===T.GAS) aux[i]=10+Math.floor(Math.random()*18);
+    if(t===T.STEAM) aux[i]=10+Math.floor(Math.random()*18);
+    if(t===T.LAMP) aux[i]=0; // power level
+    if(t===T.BATTERY) aux[i]=Math.floor(Math.random()*16); // phase offset
+    if(PORTALS_ENABLED){
+      if(t===T.PORTAL_B){ const f=faceToDir(portalFaceB); aux[i]=dirToFace(f.dx,f.dy); }
+      if(t===T.PORTAL_O){ const f=faceToDir(portalFaceO); aux[i]=dirToFace(f.dx,f.dy); }
+    }
     if(t===T.SPARK) aux[i]=3;
     if(t===T.TNT) aux[i]=0;
     if(t===T.PEOPLE){
@@ -616,11 +699,14 @@ function refreshGoalsUI(){
   function nameToType(n){ switch(n){
     case 'sand':return T.SAND; case 'water':return T.WATER; case 'stone':return T.STONE;
     case 'lava':return T.LAVA; case 'oil':return T.OIL; case 'fire':return T.FIRE;
-    case 'smoke':return T.SMOKE; case 'metal':return T.METAL; case 'ice':return T.ICE;
+    case 'smoke':return T.SMOKE; case 'steam':return T.STEAM; case 'metal':return T.METAL; case 'ice':return T.ICE;
     case 'seed':return T.SEED; case 'plant':return T.PLANT; case 'wire':return T.WIRE;
     case 'spark':return T.SPARK; case 'tnt':return T.TNT; case 'people':return T.PEOPLE;
     case 'road':return T.ROAD; case 'lamp':return T.LAMP; case 'farmland':return T.FARMLAND;
-    case 'pile':return T.PILE; default:return T.EMPTY;
+    case 'pile':return T.PILE; case 'wood':return T.WOOD; case 'glass':return T.GLASS;
+    case 'acid':return T.ACID; case 'snow':return T.SNOW; case 'battery':return T.BATTERY;
+    case 'heater':return T.HEATER; case 'fan':return T.FAN; case 'portalB':return PORTALS_ENABLED?T.PORTAL_B:T.EMPTY; case 'portalO':return PORTALS_ENABLED?T.PORTAL_O:T.EMPTY;
+    case 'gas':return T.GAS; case 'solar':return T.SOLAR; case 'sensor':return T.SENSOR; case 'sprinkler':return T.SPRINKLER; default:return T.EMPTY;
   } }
   function roleToId(r){ return r==='builder'?0 : r==='miner'?1 : r==='farmer'?2 : r==='firefighter'?3 : Math.floor(Math.random()*4); }
 
@@ -630,12 +716,23 @@ function refreshGoalsUI(){
     const a=aux[i]; aux[i]=aux[j]; aux[j]=a;
     updated[j]=1; activity[j]=Math.min(255, activity[j]+20);
   }
+  function movePerson(i,j){
+    // swap including NPC state
+    const t=grid[i]; grid[i]=grid[j]; grid[j]=t;
+    const a=aux[i]; aux[i]=aux[j]; aux[j]=a;
+    const d=npcDir[i]; npcDir[i]=npcDir[j]; npcDir[j]=d;
+    const task=npcTask[i]; npcTask[i]=npcTask[j]; npcTask[j]=task;
+    const inv=npcInvStone[i]; npcInvStone[i]=npcInvStone[j]; npcInvStone[j]=inv;
+    const role=npcRole[i]; npcRole[i]=npcRole[j]; npcRole[j]=role;
+    const tx=npcTX[i], ty=npcTY[i]; npcTX[i]=npcTX[j]; npcTX[j]=tx; npcTY[i]=npcTY[j]; npcTY[j]=ty;
+    updated[j]=1; activity[j]=Math.min(255, activity[j]+20);
+  }
 
   function igniteNeighbors(x,y){
     const dirs=[[1,0],[-1,0],[0,1],[0,-1]];
     for(const [dx,dy] of dirs){
       const nx=x+dx, ny=y+dy; if(!inb(nx,ny)) continue; const j=idx(nx,ny); const t=grid[j];
-      if(t===T.OIL||t===T.PLANT||t===T.SEED){ grid[j]=T.FIRE; aux[j]=8+Math.floor(Math.random()*8); }
+      if(t===T.OIL||t===T.PLANT||t===T.SEED||t===T.WOOD){ grid[j]=T.FIRE; aux[j]=8+Math.floor(Math.random()*8); }
       if(t===T.TNT && aux[j]===0){ aux[j]=8; }
       if(t===T.ICE){ grid[j]=T.WATER; }
     }
@@ -702,6 +799,8 @@ function refreshGoalsUI(){
               const nx=x+d, ny=y+1; if(!inb(nx,ny)) continue; const j=idx(nx,ny); const bt=grid[j];
               if(bt===T.EMPTY||bt===T.WATER||bt===T.OIL||bt===T.SMOKE){ swap(i, j); moved=true; break; }
             }
+            // Glass forging near heat
+            if(!moved && (adjAny(x,y,[T.FIRE,T.LAVA])) && Math.random()<0.02){ grid[i]=T.GLASS; aux[i]=0; break; }
             if(!moved) updated[i]=1; break;
           }
           case T.WATER: {
@@ -718,8 +817,8 @@ function refreshGoalsUI(){
                 if(inb(nx,ny) && grid[idx(nx,ny)]===T.EMPTY){ swap(i, idx(nx,ny)); moved=true; break; }
               }
             }
-            if(adjAny(x,y,[T.LAVA])){ grid[i]=T.SMOKE; aux[i]=8+Math.floor(Math.random()*10); setNeighbors(x,y,T.LAVA, T.STONE); }
-            if(adjAny(x,y,[T.FIRE])){ grid[i]=T.SMOKE; aux[i]=6+Math.floor(Math.random()*6); }
+            if(adjAny(x,y,[T.LAVA])){ grid[i]=T.STEAM; aux[i]=10+Math.floor(Math.random()*12); setNeighbors(x,y,T.LAVA, T.STONE); }
+            if(adjAny(x,y,[T.FIRE])){ grid[i]=T.STEAM; aux[i]=8+Math.floor(Math.random()*8); }
             updated[i]=1; break;
           }
           case T.OIL: {
@@ -756,21 +855,98 @@ function refreshGoalsUI(){
             if(adjAny(x,y,[T.WATER,T.ICE]) || Math.random()<0.01){ grid[i]=T.STONE; aux[i]=0; break; }
             igniteNeighbors(x,y);
             aux[i]=(aux[i]+1)&3;
+            if(Math.random()<0.03){ addParticle(x+Math.random()*0.6, y+Math.random()*0.6, 0xFF7733, (Math.random()-0.5)*0.02, -0.03-Math.random()*0.02, 40, 0.5); }
             updated[i]=1; break;
           }
           case T.ICE: {
             if(adjAny(x,y,[T.LAVA,T.FIRE])){ grid[i]=T.WATER; break; }
             updated[i]=1; break;
           }
+          case T.WOOD: {
+            // Static, flammable
+            if(adjAny(x,y,[T.FIRE,T.LAVA,T.SPARK])){ grid[i]=T.FIRE; aux[i]=6+Math.floor(Math.random()*6); }
+            updated[i]=1; break;
+          }
+          case T.GLASS: {
+            // Inert solid
+            updated[i]=1; break;
+          }
+          case T.ACID: {
+            // Liquid similar to water, dissolves many materials
+            if(below===T.EMPTY){ swap(i,ib); break; }
+            const dirsA=Math.random()<0.5?[-1,1]:[1,-1];
+            let movedA=false;
+            for(const d of dirsA){
+              const sx=x+d;
+              if(inb(sx,y) && grid[idx(sx,y)]===T.EMPTY){ swap(i, idx(sx,y)); movedA=true; break; }
+            }
+            if(!movedA){
+              for(const d of dirsA){
+                const nx=x+d, ny=y+1;
+                if(inb(nx,ny) && grid[idx(nx,ny)]===T.EMPTY){ swap(i, idx(nx,ny)); movedA=true; break; }
+              }
+            }
+            // Reactivity
+            const targets=[T.STONE,T.METAL,T.PLANT,T.SEED,T.ICE,T.WIRE,T.TNT,T.PILE];
+            const dirsR=[[1,0],[-1,0],[0,1],[0,-1]];
+            for(const [dx,dy] of dirsR){
+              const nx=x+dx, ny=y+dy; if(!inb(nx,ny)) continue; const j=idx(nx,ny);
+              if(targets.includes(grid[j]) && Math.random()<0.35){
+                // dissolve target; emit a puff and sometimes neutralize to water
+                grid[j]=T.SMOKE; aux[j]=6+Math.floor(Math.random()*6);
+                if(Math.random()<0.25){ grid[i]=T.WATER; }
+              }
+              if(grid[j]===T.WATER && Math.random()<0.15){ grid[i]=T.WATER; }
+            }
+            updated[i]=1; break;
+          }
+          case T.STEAM: {
+            // Rises, then condenses to water
+            if(aux[i]===0){
+              // try condense downward if empty below
+              if(inb(x,y+1) && grid[idx(x,y+1)]===T.EMPTY){ grid[idx(x,y+1)]=T.WATER; grid[i]=T.EMPTY; aux[idx(x,y+1)]=0; break; }
+              grid[i]=T.WATER; break;
+            }
+            aux[i]--;
+            if(Math.random()<0.05){ addParticle(x+Math.random()*0.6, y+Math.random()*0.4, 0xFFAA55, (Math.random()-0.5)*0.03, -0.05-Math.random()*0.03, 35, 0.45); }
+            if(inb(x,y-1) && grid[idx(x,y-1)]===T.EMPTY){ swap(i, idx(x,y-1)); break; }
+            const dirsS=Math.random()<0.5?[-1,1]:[1,-1];
+            for(const d of dirsS){
+              const nx=x+d;
+              if(inb(nx,y-1) && grid[idx(nx,y-1)]===T.EMPTY){ swap(i, idx(nx,y-1)); break; }
+            }
+            updated[i]=1; break;
+          }
+          case T.SNOW: {
+            // Powder similar to sand, melts near heat
+            if(below===T.EMPTY||below===T.WATER||below===T.OIL||below===T.SMOKE) { swap(i,ib); break; }
+            const dirsN=Math.random()<0.5?[-1,1]:[1,-1];
+            let movedN=false;
+            for(const d of dirsN){
+              const nx=x+d, ny=y+1; if(!inb(nx,ny)) continue; const j=idx(nx,ny); const bt=grid[j];
+              if(bt===T.EMPTY||bt===T.WATER||bt===T.OIL||bt===T.SMOKE){ swap(i, j); movedN=true; break; }
+            }
+            if(adjAny(x,y,[T.FIRE,T.LAVA])){ grid[i]=T.WATER; break; }
+            if(!movedN){ updated[i]=1; }
+            break;
+          }
           case T.METAL:
           case T.STONE:
           case T.WIRE:
           case T.TNT:
           case T.ROAD:
-          case T.LAMP:
           case T.FARMLAND:
-          case T.PILE: { updated[i]=1; break; }
+          case T.PILE:
+          case T.PORTAL_B:
+          case T.PORTAL_O: { updated[i]=1; break; }
 
+          case T.LAMP: {
+            // Power decay; brighten when powered by spark next to it
+            if(aux[i]>0) aux[i]--;
+            if(adjAny(x,y,[T.SPARK])){ aux[i]=6; }
+            updated[i]=1; break;
+          }
+          
           case T.SEED: {
             if(adjAny(x,y,[T.WATER]) && (below!==T.EMPTY)){ grid[i]=T.PLANT; aux[i]=20+Math.floor(Math.random()*40); }
             if(below===T.EMPTY){ swap(i,ib); break; }
@@ -804,6 +980,16 @@ function refreshGoalsUI(){
             }
             updated[i]=1; break;
           }
+          case T.GAS: {
+            if(aux[i]===0){ grid[i]=T.EMPTY; break; }
+            aux[i]--;
+            // ignite if near flame/spark/lava
+            if(adjAny(x,y,[T.FIRE,T.LAVA,T.SPARK])){ grid[i]=T.FIRE; aux[i]=6+Math.floor(Math.random()*8); break; }
+            if(inb(x,y-1) && grid[idx(x,y-1)]===T.EMPTY){ swap(i, idx(x,y-1)); break; }
+            const dirsG=Math.random()<0.5?[-1,1]:[1,-1];
+            for(const d of dirsG){ const nx=x+d; if(inb(nx,y-1) && grid[idx(nx,y-1)]===T.EMPTY){ swap(i, idx(nx,y-1)); break; } }
+            updated[i]=1; break;
+          }
           case T.SPARK: {
             if(aux[i]===0){ grid[i]=T.EMPTY; break; }
             aux[i]--;
@@ -815,7 +1001,127 @@ function refreshGoalsUI(){
             }
             updated[i]=1; break;
           }
-          case T.PEOPLE: { updated[i]=1; break; }
+          case T.BATTERY: {
+            // Periodically emit spark into adjacent wires
+            aux[i] = (aux[i]+1)&31; // 0..31
+            if((aux[i]&7)===0){
+              const dirsB=[[1,0],[-1,0],[0,1],[0,-1]];
+              for(const [dx,dy] of dirsB){
+                const nx=x+dx, ny=y+dy; if(!inb(nx,ny)) continue; const j=idx(nx,ny);
+                if(grid[j]===T.WIRE){ grid[j]=T.SPARK; aux[j]=3; }
+              }
+            }
+            updated[i]=1; break;
+          }
+          case T.HEATER: {
+            // Heat nearby materials
+            const dirsH=[[1,0],[-1,0],[0,1],[0,-1]];
+            for(const [dx,dy] of dirsH){
+              const nx=x+dx, ny=y+dy; if(!inb(nx,ny)) continue; const j=idx(nx,ny);
+              const t2=grid[j];
+              if(t2===T.WATER){ grid[j]=T.STEAM; aux[j]=10+Math.floor(Math.random()*10); }
+              if(t2===T.ICE||t2===T.SNOW){ grid[j]=T.WATER; aux[j]=0; }
+              if(t2===T.WOOD||t2===T.PLANT||t2===T.SEED||t2===T.OIL){ grid[j]=T.FIRE; aux[j]=6+Math.floor(Math.random()*6); }
+            }
+            updated[i]=1; break;
+          }
+          case T.FAN: {
+            // Push light gases upward
+            const upx=x, upy=y-1;
+            if(inb(upx,upy)){
+              const j=idx(upx,upy);
+              const t2=grid[j];
+              if((t2===T.SMOKE||t2===T.STEAM||t2===T.FIRE) && inb(upx,upy-1) && grid[idx(upx,upy-1)]===T.EMPTY){
+                swap(j, idx(upx,upy-1));
+              } else {
+                // nudge sideways if blocked
+                const dir = Math.random()<0.5? -1:1;
+                const sx=x+dir, sy=y-1; if(inb(sx,sy) && (grid[idx(sx,sy)]===T.EMPTY)) swap(idx(upx,upy), idx(sx,sy));
+              }
+            }
+            updated[i]=1; break;
+          }
+          case T.SOLAR: {
+            // daytime pulsing
+            aux[i]=(aux[i]+1)&31;
+            if($day.checked && (aux[i]&1)===0){
+              const dirsH=[[1,0],[-1,0],[0,1],[0,-1]];
+              for(const [dx,dy] of dirsH){ const nx=x+dx, ny=y+dy; if(!inb(nx,ny)) continue; const j=idx(nx,ny); if(grid[j]===T.WIRE){ grid[j]=T.SPARK; aux[j]=2; } }
+            }
+            updated[i]=1; break;
+          }
+          case T.SENSOR: {
+            // Trigger when detects person or fire
+            if(adjAny(x,y,[T.PEOPLE,T.FIRE])){
+              const dirsH=[[1,0],[-1,0],[0,1],[0,-1]];
+              for(const [dx,dy] of dirsH){ const nx=x+dx, ny=y+dy; if(!inb(nx,ny)) continue; const j=idx(nx,ny); if(grid[j]===T.WIRE){ grid[j]=T.SPARK; aux[j]=2; } }
+            }
+            updated[i]=1; break;
+          }
+          case T.SPRINKLER: {
+            // If powered, emit water above else sides
+            if(adjAny(x,y,[T.SPARK])){
+              const order=[[0,-1],[1,0],[-1,0],[0,1]];
+              for(const [dx,dy] of order){ const nx=x+dx, ny=y+dy; if(!inb(nx,ny)) continue; const j=idx(nx,ny); if(grid[j]===T.EMPTY){ grid[j]=T.WATER; aux[j]=0; break; } }
+            }
+            updated[i]=1; break;
+          }
+          case T.PEOPLE: {
+            // Basic gravity and walking
+            const belowT = below;
+            const idir = npcDir[i];
+            // Avoid hazards
+            if(adjAny(x,y,[T.FIRE,T.LAVA])){
+              const away = idir===0?1:-1; // try move away
+              if(inb(x+away,y) && grid[idx(x+away,y)]===T.EMPTY){ movePerson(i, idx(x+away,y)); npcDir[idx(x+away,y)]=away===-1?0:1; break; }
+            }
+            // Fall
+            if(belowT===T.EMPTY){ movePerson(i,ib); break; }
+            // Slide on slopes
+            const order = Math.random()<0.5?[ -1,1 ]:[ 1,-1 ];
+            let slid=false;
+            for(const d of order){
+              const nx=x+d, ny=y+1; if(!inb(nx,ny)) continue; const j=idx(nx,ny);
+              if(grid[j]===T.EMPTY){ movePerson(i,j); slid=true; npcDir[j]=(d<0?0:1); break; }
+            }
+            if(slid) break;
+            // Walk
+            const stepDir = (idir===0?-1:1);
+            if(Math.random()<0.7){
+              const nx=x+stepDir; if(inb(nx,y) && grid[idx(nx,y)]===T.EMPTY){ movePerson(i, idx(nx,y)); break; } else { npcDir[i]=idir?0:1; }
+            }
+
+            // Role actions
+            const role = npcRole[i];
+            const dirsN=[[1,0],[-1,0],[0,1],[0,-1]];
+            if(role===3){ // Firefighter
+              for(const [dx,dy] of dirsN){ const nx=x+dx, ny=y+dy; if(!inb(nx,ny)) continue; const j=idx(nx,ny); if(grid[j]===T.FIRE){ grid[j]=T.SMOKE; aux[j]=8; sizzle(); }}
+            } else if(role===1){ // Miner
+              for(const [dx,dy] of dirsN){ const nx=x+dx, ny=y+dy; if(!inb(nx,ny)) continue; const j=idx(nx,ny); if(grid[j]===T.STONE && Math.random()<0.1){ grid[j]=T.PILE; aux[j]=0; }}
+            } else if(role===0){ // Builder
+              // Pickup piles
+              for(const [dx,dy] of dirsN){ const nx=x+dx, ny=y+dy; if(!inb(nx,ny)) continue; const j=idx(nx,ny); if(grid[j]===T.PILE){ grid[j]=T.EMPTY; npcInvStone[i]+=5; }}
+              // Place stone above road
+              if(npcInvStone[i]>0){
+                // If standing on road and cell above empty
+                if(inb(x,y+1) && grid[idx(x,y+1)]===T.ROAD && inb(x,y-1) && grid[idx(x,y-1)]===T.EMPTY){
+                  grid[idx(x,y-1)]=T.STONE; npcInvStone[i]--; npcTask[i] = (npcTask[i]+1)|0; if(npcTask[i]%6===0) ach.huts++;
+                } else {
+                  // Try adjacent road
+                  for(const [dx,dy] of dirsN){ const nx=x+dx, ny=y+dy; if(!inb(nx,ny)) continue; const j=idx(nx,ny); if(grid[j]===T.ROAD){ const above=idx(nx,ny-1); if(inb(nx,ny-1) && grid[above]===T.EMPTY){ grid[above]=T.STONE; npcInvStone[i]--; npcTask[i] = (npcTask[i]+1)|0; if(npcTask[i]%6===0) ach.huts++; break; } }
+                  }
+                }
+              }
+            } else if(role===2){ // Farmer
+              for(const [dx,dy] of dirsN){
+                const nx=x+dx, ny=y+dy; if(!inb(nx,ny)) continue; const j=idx(nx,ny);
+                if(grid[j]===T.SAND && adjAny(nx,ny,[T.WATER]) && Math.random()<0.2){
+                  grid[j]=T.FARMLAND; if(inb(nx,ny-1) && grid[idx(nx,ny-1)]===T.EMPTY) { grid[idx(nx,ny-1)]=T.PLANT; aux[idx(nx,ny-1)]=10; }
+                }
+              }
+            }
+            updated[i]=1; break;
+          }
         }
       }
     }
@@ -838,42 +1144,421 @@ function refreshGoalsUI(){
       }
     }
 
+    // Portals disabled
+    // processPortals();
+
     // particles update (visual only)
     for(let p=particles.length-1; p>=0; p--){
       const P=particles[p]; P.ttl--; P.x+=P.vx; P.y+=P.vy; P.vy+=0.001; if(P.ttl<=0) particles.splice(p,1);
     }
   }
 
+  function processPortals(){
+    // collect blue and orange portals
+    const blues=[], oranges=[];
+    for(let y=0;y<H;y++) for(let x=0;x<W;x++){
+      const t=grid[idx(x,y)]; if(t===T.PORTAL_B) blues.push({x,y}); else if(t===T.PORTAL_O) oranges.push({x,y});
+    }
+    if(blues.length===0 || oranges.length===0) return;
+    const immovables = new Set([T.EMPTY,T.METAL,T.STONE,T.GLASS,T.WIRE,T.TNT,T.ROAD,T.LAMP,T.FARMLAND,T.WOOD,T.BATTERY,T.HEATER,T.FAN,T.PORTAL_B,T.PORTAL_O,T.SOLAR,T.SENSOR,T.SPRINKLER]);
+
+    const handleSide = (portalsFrom, portalsTo) => {
+      for(const p of portalsFrom){
+        const dirs=[[0,1],[0,-1],[1,0],[-1,0]]; // check neighbors
+        for(const [dx,dy] of dirs){
+          const sx=p.x+dx, sy=p.y+dy; if(!inb(sx,sy)) continue; const si=idx(sx,sy); const t=grid[si];
+          if(immovables.has(t)) continue;
+          // pick nearest target portal
+          let best=null, bestd=1e9;
+          for(const q of portalsTo){ const d2=(q.x-p.x)*(q.x-p.x)+(q.y-p.y)*(q.y-p.y); if(d2<bestd){ best=q; bestd=d2; } }
+          if(!best) continue;
+          // exit uses target portal's facing from aux
+          const fcode = aux[idx(best.x,best.y)]&3;
+          const faceDirs = [[0,-1],[1,0],[0,1],[-1,0]]; // 0 up,1 right,2 down,3 left
+          const primary = faceDirs[fcode] || [0,-1];
+          const candidates=[primary, [0,-1],[1,0],[-1,0],[0,1]]; // prefer face, else any side
+          for(const [ex,ey] of candidates){
+            const tx=best.x+ex, ty=best.y+ey; if(!inb(tx,ty)) continue; const ti=idx(tx,ty);
+            if(grid[ti]!==T.EMPTY) continue;
+            if(t===T.PEOPLE){
+              grid[ti]=t; aux[ti]=aux[si]; grid[si]=T.EMPTY; aux[si]=0;
+              npcDir[ti]=npcDir[si]; npcTask[ti]=npcTask[si]; npcInvStone[ti]=npcInvStone[si]; npcRole[ti]=npcRole[si]; npcTX[ti]=npcTX[si]; npcTY[ti]=npcTY[si];
+              npcDir[si]=0; npcTask[si]=0; npcInvStone[si]=0; npcRole[si]=0; npcTX[si]=0; npcTY[si]=0;
+            } else {
+              grid[ti]=t; aux[ti]=aux[si]; grid[si]=T.EMPTY; aux[si]=0;
+            }
+            updated[ti]=1; activity[ti]=200; break;
+          }
+        }
+      }
+    };
+    handleSide(blues, oranges);
+    handleSide(oranges, blues);
+  }
+
   // ===== Rendering =====
   let buf = null, bctx = null;
+  let glow = null, gctx = null;
+  // WebGL post FX (water + bloom)
+  let wglCanvas=null, wgl=null, wglProg=null, wglBuf=null, wglPosLoc=-1, wglSceneTex=null, wglMaskTex=null, wglTimeLoc=null, wglResLoc=null, wglSceneLoc=null, wglMaskLoc=null;
+  let wglBloomProg=null, wglBloomPosLoc=-1, wglBloomResLoc=null, wglBloomSceneLoc=null, wglBloomTimeLoc=null;
+  let waterMaskArr=null;
   const img = () => new ImageData(W,H);
   let frame=null; let tDay=0;
+  const USE_GL_WORLD = true; // fallback/default
+  const USE_WGPU_WORLD = false; // WebGPU disabled for now
+  // GL world renderer
+  let glWorldCanvas=null, glWorld=null, glWorldProg=null, glWorldBuf=null, glWorldPosLoc=-1;
+  let glWorldDataTex=null, glWorldPalTex=null;
+  let glWorldResLoc=null, glWorldTimeLoc=null, glWorldDataLoc=null, glWorldPalLoc=null;
+  let worldDataArr=null, worldPalArr=null;
+  let sceneSource=null; // canvas used as scene texture for post FX
+
+  // WebGPU world renderer
+  let wgpuReady=false, wgpuError=null;
+  let wgpuCanvas=null, wgpuCtx=null, wgpuDevice=null, wgpuFormat=null;
+  let wgpuWorldTex=null, wgpuPalTex=null, wgpuSampler=null, wgpuPipeline=null;
+  let wgpuBindLayout=null, wgpuBindGroup=null, wgpuVertexBuf=null, wgpuUniformBuf=null;
+  let wgpuWorldRowPitch=0, wgpuWorldUpload=null;
+
+  async function initWorldWGPU(){
+    try{
+      if(!('gpu' in navigator)) { wgpuReady=false; return; }
+      const adapter = await navigator.gpu.requestAdapter(); if(!adapter){ wgpuReady=false; return; }
+      wgpuDevice = await adapter.requestDevice();
+      // canvas for wgpu world
+      wgpuCanvas = document.createElement('canvas'); wgpuCanvas.width=W; wgpuCanvas.height=H;
+      wgpuCtx = wgpuCanvas.getContext('webgpu');
+      wgpuFormat = navigator.gpu.getPreferredCanvasFormat();
+      wgpuCtx.configure({ device: wgpuDevice, format: wgpuFormat, alphaMode:'premultiplied' });
+      // mount behind the 2D canvas for overlays
+      const parent = canvas.parentElement; if(parent && !wgpuCanvas.isConnected){
+        wgpuCanvas.style.position='absolute'; wgpuCanvas.style.left='0'; wgpuCanvas.style.top='0';
+        wgpuCanvas.style.imageRendering='pixelated'; wgpuCanvas.style.pointerEvents='none';
+        parent.style.position='relative'; parent.insertBefore(wgpuCanvas, canvas); // place behind 2D canvas
+      }
+      // resources
+      const makeTex = (w,h,usage) => wgpuDevice.createTexture({ size:{width:w,height:h}, format:'rgba8unorm', usage });
+      wgpuWorldTex = makeTex(W,H, GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.COPY_DST);
+      wgpuPalTex = makeTex(256,1, GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.COPY_DST);
+      wgpuSampler = wgpuDevice.createSampler({ magFilter:'nearest', minFilter:'nearest', addressModeU:'clamp-to-edge', addressModeV:'clamp-to-edge' });
+      // upload palette
+      if(!worldPalArr){ worldPalArr=new Uint8Array(256*4); for(let i=0;i<256;i++){ let hex=C[i]??0; const o=i*4; worldPalArr[o]=(hex>>16)&255; worldPalArr[o+1]=(hex>>8)&255; worldPalArr[o+2]=hex&255; worldPalArr[o+3]=255; } }
+      wgpuDevice.queue.writeTexture(
+        { texture: wgpuPalTex },
+        worldPalArr, { bytesPerRow: 256*4 }, { width:256, height:1 }
+      );
+      // uniforms (vec2 + time + waterOn + bloom + padding)
+      wgpuUniformBuf = wgpuDevice.createBuffer({ size: 32, usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST });
+      // quad
+      wgpuVertexBuf = wgpuDevice.createBuffer({ size: 16*4, usage: GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST });
+      const quad=new Float32Array([-1,-1, 1,-1, -1,1, 1,1]); wgpuDevice.queue.writeBuffer(wgpuVertexBuf, 0, quad);
+      // pipeline
+      const wgsl = `
+        struct U { res: vec2f, time: f32, waterOn: f32, bloom: f32, pad: vec3f };
+        @group(0) @binding(0) var samp: sampler;
+        @group(0) @binding(1) var texW: texture_2d<f32>;
+        @group(0) @binding(2) var texP: texture_2d<f32>;
+        @group(0) @binding(3) var<uniform> uni: U;
+        struct VSOut { @builtin(position) pos: vec4f, @location(0) uv: vec2f };
+        @vertex fn vs(@location(0) a: vec2f) -> VSOut { var o:VSOut; o.pos = vec4f(a,0,1); o.uv = (a+vec2f(1,1))*0.5; return o; }
+        fn pal(idx: f32) -> vec4f { let u=(idx+0.5)/256.0; return textureSample(texP, samp, vec2f(u,0.5)); }
+        @fragment fn fs(@location(0) uv: vec2f) -> @location(0) vec4f {
+          let uvF = vec2f(uv.x, 1.0-uv.y);
+          let px = 1.0/uni.res.x; let py = 1.0/uni.res.y;
+          let uvQ = (floor(uvF*uni.res)+0.5)/uni.res;
+          let dt = textureSample(texW, samp, uvQ);
+          let tidx = floor(dt.r*255.0+0.5);
+          var base = pal(tidx);
+          // edges darken
+          let tL = floor(textureSample(texW, samp, uvQ+vec2f(-px,0)).r*255.0+0.5);
+          let tR = floor(textureSample(texW, samp, uvQ+vec2f(px,0)).r*255.0+0.5);
+          let tU = floor(textureSample(texW, samp, uvQ+vec2f(0,-py)).r*255.0+0.5);
+          let tD = floor(textureSample(texW, samp, uvQ+vec2f(0,py)).r*255.0+0.5);
+          let edge = select(0.0, 1.0, abs(tidx-tL)>0.5) + select(0.0, 1.0, abs(tidx-tR)>0.5) + select(0.0,1.0, abs(tidx-tU)>0.5) + select(0.0,1.0, abs(tidx-tD)>0.5);
+          base.rgb *= 1.0 - 0.06*min(edge,1.0);
+          // water refraction + shading if enabled
+          if (tidx==2.0 && uni.waterOn>0.5) {
+            var depth: f32 = 0.0;
+            for (var i:i32=0; i<6; i=i+1) {
+              let yy = uvQ.y + f32(i)*py; if(yy>1.0){ break; }
+              let d2 = textureSample(texW, samp, vec2f(uvQ.x, yy));
+              depth = depth + select(0.0, 1.0, abs(floor(d2.r*255.0+0.5)-2.0)>0.5);
+            }
+            base.rgb = base.rgb * (1.0 - depth*0.06);
+            let mx = textureSample(texW, samp, uvQ+vec2f(px,0.0)).r - textureSample(texW, samp, uvQ-vec2f(px,0.0)).r;
+            let my = textureSample(texW, samp, uvQ+vec2f(0.0,py)).r - textureSample(texW, samp, uvQ-vec2f(0.0,py)).r;
+            let normal = normalize(vec3f(-mx*6.0, -my*6.0, 1.0));
+            let n = vec2f(sin((uvQ.y + uni.time*0.15)*20.0)*0.0015, cos((uvQ.x - uni.time*0.10)*20.0)*0.0015);
+            let offs = n + normal.xy*0.0025;
+            let dt2 = textureSample(texW, samp, clamp(uvQ+offs, vec2f(0.0), vec2f(1.0)));
+            let tidx2 = floor(dt2.r*255.0+0.5);
+            let scene = pal(tidx2).rgb;
+            let tint = vec3f(0.15,0.35,0.55);
+            base.rgb = mix(base.rgb, scene*1.05 + tint*0.25, 0.45);
+          }
+          // lamp brighten when aux>0 (dt.g)
+          if (tidx==17.0 && dt.g>0.0) { base.rgb += vec3f(0.15,0.12,0.02); }
+          // gases minor flicker
+          if (tidx==7.0 || tidx==23.0 || tidx==30.0) { base.rgb += vec3f(0.02*sin((uvQ.x+uvQ.y+uni.time)*80.0)); }
+          // simple bloom from bright emitters
+          var bloomAdd: vec3f = vec3f(0.0);
+          if (uni.bloom > 0.01) {
+            let isEmitCenter = (tidx==6.0) || (tidx==4.0) || (tidx==13.0) || ((tidx==17.0) && dt.g>0.0);
+            if (isEmitCenter) { bloomAdd += base.rgb * 0.35; }
+            for (var oy:i32=-1; oy<=1; oy=oy+1) { for (var ox:i32=-1; ox<=1; ox=ox+1) {
+              let uvN = uvQ + vec2f(f32(ox), f32(oy)) * vec2f(px,py) * 2.0;
+              let dN = textureSample(texW, samp, clamp(uvN, vec2f(0.0), vec2f(1.0)));
+              let iN = floor(dN.r*255.0+0.5);
+              let emit = (iN==6.0) || (iN==4.0) || (iN==13.0) || ((iN==17.0) && dN.g>0.0);
+              if (emit) { bloomAdd += pal(iN).rgb * 0.06; }
+            }}
+            base.rgb += bloomAdd * uni.bloom;
+          }
+          return vec4f(base.rgb, 1.0);
+        }`;
+      const module = wgpuDevice.createShaderModule({ code: wgsl });
+      wgpuPipeline = wgpuDevice.createRenderPipeline({
+        layout: 'auto',
+        vertex: { module, entryPoint:'vs', buffers:[{ arrayStride: 8, attributes:[{ shaderLocation:0, offset:0, format:'float32x2'}] }] },
+        fragment: { module, entryPoint:'fs', targets:[{ format: wgpuFormat }] },
+        primitive:{ topology:'triangle-strip' }
+      });
+      wgpuReady=true;
+      ensureWorldWGPUSize();
+    }catch(e){ wgpuError=e; wgpuReady=false; }
+  }
+  function ensureWorldWGPUSize(){ if(!wgpuCanvas||!wgpuDevice) return; if(wgpuCanvas.width!==W||wgpuCanvas.height!==H){ wgpuCanvas.width=W; wgpuCanvas.height=H; wgpuCtx.configure({ device: wgpuDevice, format: wgpuFormat, alphaMode:'premultiplied' }); wgpuWorldTex.destroy(); wgpuWorldTex = wgpuDevice.createTexture({ size:{width:W,height:H}, format:'rgba8unorm', usage: GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.COPY_DST }); }
+    // compute row pitch and staging buffer
+    const row = W*4; const pitch = Math.ceil(row/256)*256; if(pitch!==wgpuWorldRowPitch){ wgpuWorldRowPitch=pitch; wgpuWorldUpload=new Uint8Array(pitch*H); }
+  }
+  function layoutWorldWGPU(){ if(!wgpuCanvas) return; // style size in CSS pixels
+    wgpuCanvas.style.width = (W*cell) + 'px';
+    wgpuCanvas.style.height = (H*cell) + 'px';
+    // apply pan/zoom (offX/offY are device pixels; convert to CSS px by DPI)
+    const tx = offX / DPI; const ty = offY / DPI;
+    wgpuCanvas.style.transformOrigin = 'top left';
+    wgpuCanvas.style.transform = `translate(${tx}px, ${ty}px) scale(${scale})`;
+  }
+  function uploadWorldDataWGPU(){ if(!wgpuReady) return; ensureWorldWGPUSize();
+    // fill upload buffer with t, aux
+    let off=0; const row=W*4; for(let y=0;y<H;y++){ const rowOff=y*wgpuWorldRowPitch; for(let x=0;x<W;x++){ const i=idx(x,y); const t=grid[i]; const a=aux[i]&255; const p=rowOff + x*4; wgpuWorldUpload[p]=t; wgpuWorldUpload[p+1]=a; wgpuWorldUpload[p+2]=0; wgpuWorldUpload[p+3]=255; } }
+    wgpuDevice.queue.writeTexture({ texture: wgpuWorldTex }, wgpuWorldUpload, { bytesPerRow: wgpuWorldRowPitch }, { width:W, height:H });
+    // update uniforms
+    const waterOn = ($waterFX && $waterFX.checked) ? 1.0 : 0.0;
+    const bloom = ($bloom && $bloom.checked) ? 0.85 : 0.0;
+    const ub=new Float32Array([W, H, performance.now()/1000.0, waterOn, bloom, 0, 0, 0]);
+    wgpuDevice.queue.writeBuffer(wgpuUniformBuf, 0, ub);
+    // bind group
+    const viewW = wgpuWorldTex.createView(); const viewP = wgpuPalTex.createView();
+    wgpuBindGroup = wgpuDevice.createBindGroup({ layout: wgpuPipeline.getBindGroupLayout(0), entries:[
+      { binding:0, resource: wgpuSampler },
+      { binding:1, resource: viewW },
+      { binding:2, resource: viewP },
+      { binding:3, resource: { buffer: wgpuUniformBuf } }
+    ]});
+  }
+  function renderWorldWGPU(){ if(!wgpuReady){ return; } uploadWorldDataWGPU(); const encoder = wgpuDevice.createCommandEncoder(); const pass = encoder.beginRenderPass({ colorAttachments:[{ view: wgpuCtx.getCurrentTexture().createView(), loadOp:'clear', storeOp:'store', clearValue:{r:0,g:0,b:0,a:1} }] }); pass.setPipeline(wgpuPipeline); pass.setVertexBuffer(0, wgpuVertexBuf); pass.setBindGroup(0, wgpuBindGroup); pass.draw(4,1,0,0); pass.end(); wgpuDevice.queue.submit([encoder.finish()]); }
 
   function ensureBuffer(){
     if(!buf || buf.width!==W || buf.height!==H){
       buf = document.createElement('canvas'); buf.width = W; buf.height = H;
       bctx = buf.getContext('2d', { alpha:false }); bctx.imageSmoothingEnabled = false;
     }
+    if(!glow || glow.width!==W || glow.height!==H){
+      glow = document.createElement('canvas'); glow.width = W; glow.height = H;
+      gctx = glow.getContext('2d', { alpha:true }); gctx.imageSmoothingEnabled = false;
+    }
+    if(!waterMaskArr || waterMaskArr.length!==W*H*4){ waterMaskArr=new Uint8Array(W*H*4); }
+  }
+  function initWorldGL(){
+    if(glWorld) return;
+    glWorldCanvas=document.createElement('canvas'); glWorldCanvas.width=W; glWorldCanvas.height=H;
+    glWorld=glWorldCanvas.getContext('webgl',{alpha:false,premultipliedAlpha:false}); if(!glWorld) return;
+    const vs=`attribute vec2 a; varying vec2 v; void main(){ v=(a+1.0)*0.5; gl_Position=vec4(a,0.0,1.0); }`;
+    const fs=`precision mediump float; varying vec2 v; uniform sampler2D d; uniform sampler2D pal; uniform vec2 r; uniform float t;
+    float eq(float a, float b){ return step(0.5, 1.0 - abs(a-b)); }
+    vec4 samplePal(float idx){ float u=(idx+0.5)/256.0; return texture2D(pal, vec2(u,0.5)); }
+    void main(){ vec2 uv=v; vec2 uvF = vec2(uv.x, 1.0 - uv.y);
+      // snap to texel centers to avoid shimmering/offset
+      vec2 uvQ = (floor(uvF * r) + 0.5) / r;
+      vec4 dt=texture2D(d, uvQ); float tidx=floor(dt.r*255.0+0.5);
+      vec4 base=samplePal(tidx);
+      // outlines for boundaries
+      float px=1.0/r.x, py=1.0/r.y;
+      float tL=floor(texture2D(d, uvQ+vec2(-px,0.0)).r*255.0+0.5);
+      float tR=floor(texture2D(d, uvQ+vec2(px,0.0)).r*255.0+0.5);
+      float tU=floor(texture2D(d, uvQ+vec2(0.0,-py)).r*255.0+0.5);
+      float tD=floor(texture2D(d, uvQ+vec2(0.0,py)).r*255.0+0.5);
+      float edge = 0.0;
+      edge += step(0.5, abs(tidx - tL)); edge += step(0.5, abs(tidx - tR)); edge += step(0.5, abs(tidx - tU)); edge += step(0.5, abs(tidx - tD));
+      base.rgb *= 1.0 - 0.06*min(edge,1.0);
+      // fake directional light using simple normal from neighbor differences
+      vec2 grad = vec2(step(0.5, abs(tidx-tR)) - step(0.5, abs(tidx-tL)), step(0.5, abs(tidx-tD)) - step(0.5, abs(tidx-tU)));
+      vec3 nrm = normalize(vec3(grad, 1.0));
+      vec3 L = normalize(vec3(0.5, 0.7, 1.0));
+      float ndl = clamp(dot(nrm, L)*0.35 + 0.75, 0.0, 1.25);
+      base.rgb *= ndl;
+      // water shading
+      if (tidx==2.0){
+        float depth=0.0; for(int i=0;i<6;i++){ float yy = uvQ.y + float(i)*py; if(yy>1.0) break; vec4 d2=texture2D(d, vec2(uvQ.x, yy)); depth += step(0.5, 1.0-abs(floor(d2.r*255.0+0.5)-2.0)); }
+        base.rgb *= (1.0 - depth*0.06);
+        // surface highlight
+        vec4 up=texture2D(d, uvQ + vec2(0.0,-py)); if(abs(floor(up.r*255.0+0.5)-2.0)>0.5) base.rgb += vec3(0.05,0.07,0.1);
+        // small ripple
+        float rip = sin((uvQ.y+t*0.3)*50.0)*0.015 + cos((uvQ.x-t*0.2)*40.0)*0.015; base.rgb = mix(base.rgb, base.rgb*1.05, rip*0.5+0.5);
+      }
+      // lamp brighten
+      if (tidx==17.0 && dt.g>0.0){ base.rgb += vec3(0.18,0.15,0.03); }
+      // fire/lava/spark emissive tint
+      if (tidx==6.0 || tidx==4.0 || tidx==13.0) { base.rgb += vec3(0.08,0.04,0.01); }
+      // gas smoothing
+      if (tidx==7.0 || tidx==23.0 || tidx==30.0){ base.rgb += vec3(0.02*sin((uvQ.x+uvQ.y+t)*80.0)); }
+      gl_FragColor=vec4(base.rgb,1.0); }`;
+    const sh=(src,type)=>{ const s=glWorld.createShader(type); glWorld.shaderSource(s,src); glWorld.compileShader(s); if(!glWorld.getShaderParameter(s, glWorld.COMPILE_STATUS)){ console.warn('GL world shader compile error:', glWorld.getShaderInfoLog(s)); } return s; };
+    const p=glWorld.createProgram(); glWorld.attachShader(p, sh(vs, glWorld.VERTEX_SHADER)); glWorld.attachShader(p, sh(fs, glWorld.FRAGMENT_SHADER)); glWorld.linkProgram(p); if(!glWorld.getProgramParameter(p, glWorld.LINK_STATUS)){ console.warn('GL world link error:', glWorld.getProgramInfoLog(p)); return; } glWorld.useProgram(p); glWorldProg=p;
+    glWorldPosLoc=glWorld.getAttribLocation(p,'a'); glWorldResLoc=glWorld.getUniformLocation(p,'r'); glWorldTimeLoc=glWorld.getUniformLocation(p,'t'); glWorldDataLoc=glWorld.getUniformLocation(p,'d'); glWorldPalLoc=glWorld.getUniformLocation(p,'pal');
+    glWorldBuf=glWorld.createBuffer(); glWorld.bindBuffer(glWorld.ARRAY_BUFFER, glWorldBuf); const quad=new Float32Array([-1,-1, 1,-1, -1,1, 1,1]); glWorld.bufferData(glWorld.ARRAY_BUFFER, quad, glWorld.STATIC_DRAW);
+    glWorld.enableVertexAttribArray(glWorldPosLoc); glWorld.vertexAttribPointer(glWorldPosLoc, 2, glWorld.FLOAT, false, 0, 0);
+    // textures
+    glWorldDataTex=glWorld.createTexture(); glWorld.bindTexture(glWorld.TEXTURE_2D, glWorldDataTex); glWorld.texParameteri(glWorld.TEXTURE_2D,glWorld.TEXTURE_MIN_FILTER,glWorld.NEAREST); glWorld.texParameteri(glWorld.TEXTURE_2D,glWorld.TEXTURE_MAG_FILTER,glWorld.NEAREST); glWorld.texParameteri(glWorld.TEXTURE_2D,glWorld.TEXTURE_WRAP_S,glWorld.CLAMP_TO_EDGE); glWorld.texParameteri(glWorld.TEXTURE_2D,glWorld.TEXTURE_WRAP_T,glWorld.CLAMP_TO_EDGE);
+    glWorldPalTex=glWorld.createTexture(); glWorld.bindTexture(glWorld.TEXTURE_2D, glWorldPalTex); glWorld.texParameteri(glWorld.TEXTURE_2D,glWorld.TEXTURE_MIN_FILTER,glWorld.NEAREST); glWorld.texParameteri(glWorld.TEXTURE_2D,glWorld.TEXTURE_MAG_FILTER,glWorld.NEAREST); glWorld.texParameteri(glWorld.TEXTURE_2D,glWorld.TEXTURE_WRAP_S,glWorld.CLAMP_TO_EDGE); glWorld.texParameteri(glWorld.TEXTURE_2D,glWorld.TEXTURE_WRAP_T,glWorld.CLAMP_TO_EDGE);
+    // palette upload
+    const palW=256, palH=1; worldPalArr=new Uint8Array(palW*4);
+    for(let i=0;i<256;i++){ let hex=0; if(C[i]!=null) hex=C[i]; const o=i*4; worldPalArr[o]=(hex>>16)&255; worldPalArr[o+1]=(hex>>8)&255; worldPalArr[o+2]=hex&255; worldPalArr[o+3]=255; }
+    glWorld.bindTexture(glWorld.TEXTURE_2D, glWorldPalTex); glWorld.texImage2D(glWorld.TEXTURE_2D,0,glWorld.RGBA,256,1,0,glWorld.RGBA,glWorld.UNSIGNED_BYTE, worldPalArr);
+  }
+  function ensureWorldGLSize(){ if(!glWorldCanvas) return; if(glWorldCanvas.width!==W||glWorldCanvas.height!==H){ glWorldCanvas.width=W; glWorldCanvas.height=H; } }
+  function uploadWorldData(){ if(!worldDataArr || worldDataArr.length!==W*H*4) worldDataArr=new Uint8Array(W*H*4); let p=0; for(let y=0;y<H;y++){ for(let x=0;x<W;x++){ const i=idx(x,y); const t=grid[i]; const a=aux[i]&255; worldDataArr[p++]=t; worldDataArr[p++]=a; worldDataArr[p++]=0; worldDataArr[p++]=255; } } }
+  function renderWorldGL(){ initWorldGL(); if(!glWorld) { // fallback silently
+      if(!frame||frame.width!==W||frame.height!==H) frame=img();
+      const data=frame.data; let p=0; for(let y=0;y<H;y++){ for(let x=0;x<W;x++){ const t=grid[idx(x,y)]; let hex=C[t]||0; data[p++]=(hex>>16)&255; data[p++]=(hex>>8)&255; data[p++]=hex&255; data[p++]=255; } } bctx.putImageData(frame,0,0); sceneSource=buf; return; }
+    ensureWorldGLSize(); uploadWorldData();
+    glWorld.viewport(0,0,W,H); glWorld.useProgram(glWorldProg);
+    glWorld.uniform2f(glWorldResLoc, W*1.0, H*1.0); glWorld.uniform1f(glWorldTimeLoc, performance.now()/1000.0);
+    glWorld.activeTexture(glWorld.TEXTURE0); glWorld.bindTexture(glWorld.TEXTURE_2D, glWorldDataTex); glWorld.texImage2D(glWorld.TEXTURE_2D,0,glWorld.RGBA,W,H,0,glWorld.RGBA,glWorld.UNSIGNED_BYTE, worldDataArr); glWorld.uniform1i(glWorldDataLoc, 0);
+    glWorld.activeTexture(glWorld.TEXTURE1); glWorld.bindTexture(glWorld.TEXTURE_2D, glWorldPalTex); glWorld.uniform1i(glWorldPalLoc, 1);
+    glWorld.bindBuffer(glWorld.ARRAY_BUFFER, glWorldBuf); glWorld.enableVertexAttribArray(glWorldPosLoc); glWorld.vertexAttribPointer(glWorldPosLoc,2,glWorld.FLOAT,false,0,0); glWorld.drawArrays(glWorld.TRIANGLE_STRIP, 0, 4);
+  }
+  function initWaterGL(){
+    if(wgl) return;
+    wglCanvas=document.createElement('canvas'); wglCanvas.width=W; wglCanvas.height=H;
+    wgl=wglCanvas.getContext('webgl',{premultipliedAlpha:false, alpha:true}); if(!wgl) return;
+    const vs=`attribute vec2 a; varying vec2 v; void main(){ v=(a+1.0)*0.5; gl_Position=vec4(a,0.0,1.0); }`;
+    const fs=`precision mediump float; varying vec2 v; uniform sampler2D s; uniform sampler2D m; uniform vec2 r; uniform float t; 
+      void main(){ vec2 vf = vec2(v.x, 1.0 - v.y); vec2 uvQ = (floor(vf * r) + 0.5) / r; float wm = texture2D(m, uvQ).r; if(wm<0.01) discard; 
+        vec2 uv=uvQ; vec2 n = vec2(sin((uvQ.y + t*0.15)*20.0)*0.0015, cos((uvQ.x - t*0.10)*20.0)*0.0015);
+        float px=1.0/r.x, py=1.0/r.y; float mx = texture2D(m, uvQ+vec2(px,0.0)).r - texture2D(m, uvQ-vec2(px,0.0)).r; float my = texture2D(m, uvQ+vec2(0.0,py)).r - texture2D(m, uvQ-vec2(0.0,py)).r; 
+        vec3 normal = normalize(vec3(-mx*6.0, -my*6.0, 1.0)); vec2 offs = n + normal.xy*0.0025; vec3 scene=texture2D(s, uv+offs).rgb; 
+        vec3 tint = vec3(0.15,0.35,0.55); vec3 col = mix(scene, scene*1.05 + tint*0.25, 0.45);
+        float spec = pow(max(0.0, dot(normal, normalize(vec3(0.3,0.6,0.75)))), 16.0); col += vec3(0.7,0.8,0.9)*spec*0.35; gl_FragColor=vec4(col, clamp(wm*0.9, 0.25, 0.9)); }`;
+    const compile=(src,type)=>{ const s=wgl.createShader(type); wgl.shaderSource(s,src); wgl.compileShader(s); if(!wgl.getShaderParameter(s,wgl.COMPILE_STATUS)){ console.warn('GLSL compile error:', wgl.getShaderInfoLog(s)); } return s; };
+    const link=(vsSrc,fsSrc)=>{ const p=wgl.createProgram(); const v=compile(vsSrc,wgl.VERTEX_SHADER); const f=compile(fsSrc,wgl.FRAGMENT_SHADER); wgl.attachShader(p,v); wgl.attachShader(p,f); wgl.linkProgram(p); if(!wgl.getProgramParameter(p,wgl.LINK_STATUS)){ console.warn('Program link error:', wgl.getProgramInfoLog(p)); } return p; };
+    const p=link(vs,fs); wgl.useProgram(p); wglProg=p;
+    wglPosLoc=wgl.getAttribLocation(p,'a'); wglTimeLoc=wgl.getUniformLocation(p,'t'); wglResLoc=wgl.getUniformLocation(p,'r'); wglSceneLoc=wgl.getUniformLocation(p,'s'); wglMaskLoc=wgl.getUniformLocation(p,'m');
+    wglBuf=wgl.createBuffer(); wgl.bindBuffer(wgl.ARRAY_BUFFER, wglBuf); const quad=new Float32Array([-1,-1, 1,-1, -1,1, 1,1]); wgl.bufferData(wgl.ARRAY_BUFFER, quad, wgl.STATIC_DRAW);
+    wgl.enableVertexAttribArray(wglPosLoc); wgl.vertexAttribPointer(wglPosLoc, 2, wgl.FLOAT, false, 0, 0);
+    // textures
+    wglSceneTex=wgl.createTexture(); wgl.bindTexture(wgl.TEXTURE_2D, wglSceneTex); wgl.texParameteri(wgl.TEXTURE_2D,wgl.TEXTURE_MIN_FILTER,wgl.LINEAR); wgl.texParameteri(wgl.TEXTURE_2D,wgl.TEXTURE_MAG_FILTER,wgl.LINEAR); wgl.texParameteri(wgl.TEXTURE_2D,wgl.TEXTURE_WRAP_S,wgl.CLAMP_TO_EDGE); wgl.texParameteri(wgl.TEXTURE_2D,wgl.TEXTURE_WRAP_T,wgl.CLAMP_TO_EDGE);
+    wglMaskTex=wgl.createTexture(); wgl.bindTexture(wgl.TEXTURE_2D, wglMaskTex); wgl.texParameteri(wgl.TEXTURE_2D,wgl.TEXTURE_MIN_FILTER,wgl.NEAREST); wgl.texParameteri(wgl.TEXTURE_2D,wgl.TEXTURE_MAG_FILTER,wgl.NEAREST); wgl.texParameteri(wgl.TEXTURE_2D,wgl.TEXTURE_WRAP_S,wgl.CLAMP_TO_EDGE); wgl.texParameteri(wgl.TEXTURE_2D,wgl.TEXTURE_WRAP_T,wgl.CLAMP_TO_EDGE);
+    // bloom shader (simplified kernel)
+    const fsBloom=`precision mediump float; varying vec2 v; uniform sampler2D s; uniform vec2 r; uniform float t; 
+      float luma(vec3 c){ return dot(c, vec3(0.2126,0.7152,0.0722)); }
+      void main(){ vec2 vf=vec2(v.x,1.0-v.y); vec2 px=vec2(1.0/r.x, 1.0/r.y); vec3 sum=vec3(0.0);
+        for(int oy=-1; oy<=1; oy++){
+          for(int ox=-1; ox<=1; ox++){
+            vec2 uv=vf+vec2(float(ox),float(oy))*px*2.0; vec3 c=texture2D(s,uv).rgb; float b=max(0.0, luma(c)-0.65);
+            float w=0.11; if(ox==0 && oy==0) w=0.18; sum+=c*b*w; }
+        }
+        gl_FragColor=vec4(sum, clamp(length(sum),0.0,0.9)); }`;
+    const p2=link(vs,fsBloom); wglBloomProg=p2; wglBloomPosLoc=wgl.getAttribLocation(p2,'a'); wglBloomResLoc=wgl.getUniformLocation(p2,'r'); wglBloomSceneLoc=wgl.getUniformLocation(p2,'s'); wglBloomTimeLoc=wgl.getUniformLocation(p2,'t');
+  }
+  function ensureWaterGLSize(){ if(!wglCanvas) return; if(wglCanvas.width!==W||wglCanvas.height!==H){ wglCanvas.width=W; wglCanvas.height=H; } }
+  function buildWaterMask(){ if(!waterMaskArr) return; let p=0; for(let y=0;y<H;y++){ for(let x=0;x<W;x++){ const on = (grid[idx(x,y)]===T.WATER)?255:0; waterMaskArr[p++]=on; waterMaskArr[p++]=on; waterMaskArr[p++]=on; waterMaskArr[p++]=255; } } }
+  function renderWaterFX(){ if(!$waterFX.checked) return; if(!wgl) initWaterGL(); if(!wgl) return; ensureWaterGLSize(); buildWaterMask();
+    // upload scene from GL world
+    const src = sceneSource || buf;
+    wgl.activeTexture(wgl.TEXTURE0); wgl.bindTexture(wgl.TEXTURE_2D, wglSceneTex); wgl.pixelStorei(wgl.UNPACK_FLIP_Y_WEBGL, false); wgl.texImage2D(wgl.TEXTURE_2D,0,wgl.RGBA,wgl.RGBA,wgl.UNSIGNED_BYTE, src);
+    // upload mask
+    wgl.activeTexture(wgl.TEXTURE1); wgl.bindTexture(wgl.TEXTURE_2D, wglMaskTex); wgl.pixelStorei(wgl.UNPACK_FLIP_Y_WEBGL, false); wgl.texImage2D(wgl.TEXTURE_2D,0,wgl.RGBA,W,H,0,wgl.RGBA,wgl.UNSIGNED_BYTE, waterMaskArr);
+    // draw
+    wgl.viewport(0,0,W,H); wgl.useProgram(wglProg); wgl.uniform1i(wglSceneLoc, 0); wgl.uniform1i(wglMaskLoc, 1); wgl.uniform2f(wglResLoc, W*1.0, H*1.0); wgl.uniform1f(wglTimeLoc, performance.now()/1000.0);
+    // clear to fully transparent every frame to avoid trails
+    wgl.disable(wgl.BLEND); wgl.clearColor(0,0,0,0); wgl.clear(wgl.COLOR_BUFFER_BIT);
+    wgl.bindBuffer(wgl.ARRAY_BUFFER, wglBuf); wgl.enableVertexAttribArray(wglPosLoc); wgl.vertexAttribPointer(wglPosLoc,2,wgl.FLOAT,false,0,0); wgl.drawArrays(wgl.TRIANGLE_STRIP, 0, 4);
+    // composite
+    ctx.globalCompositeOperation='source-over'; ctx.globalAlpha=1; ctx.drawImage(wglCanvas, 0,0);
+  }
+  function renderBloomFX(){ if(!$bloom.checked) return; if(!wgl) initWaterGL(); if(!wgl) return; ensureWaterGLSize();
+    // upload scene texture
+    const src = sceneSource || buf;
+    wgl.activeTexture(wgl.TEXTURE0); wgl.bindTexture(wgl.TEXTURE_2D, wglSceneTex); wgl.pixelStorei(wgl.UNPACK_FLIP_Y_WEBGL, false); wgl.texImage2D(wgl.TEXTURE_2D,0,wgl.RGBA,wgl.RGBA,wgl.UNSIGNED_BYTE, src);
+    // draw bloom into overlay canvas
+    wgl.viewport(0,0,W,H); wgl.useProgram(wglBloomProg); wgl.uniform1i(wglBloomSceneLoc, 0); wgl.uniform2f(wglBloomResLoc, W*1.0, H*1.0); wgl.uniform1f(wglBloomTimeLoc, performance.now()/1000.0);
+    wgl.disable(wgl.BLEND); wgl.clearColor(0,0,0,0); wgl.clear(wgl.COLOR_BUFFER_BIT);
+    wgl.bindBuffer(wgl.ARRAY_BUFFER, wglBuf); wgl.enableVertexAttribArray(wglPosLoc); wgl.vertexAttribPointer(wglPosLoc,2,wgl.FLOAT,false,0,0); wgl.drawArrays(wgl.TRIANGLE_STRIP, 0, 4);
+    // additive composite on main
+    ctx.globalCompositeOperation='lighter'; ctx.globalAlpha=0.85; ctx.drawImage(wglCanvas,0,0); ctx.globalAlpha=1; ctx.globalCompositeOperation='source-over';
   }
   function lerpColor(a,b,t){ const ar=(a>>16)&255,ag=(a>>8)&255,ab=a&255; const br=(b>>16)&255,bg=(b>>8)&255,bb=b&255; const r=ar+(br-ar)*t|0,g=ag+(bg-ag)*t|0,b2=ab+(bb-ab)*t|0; return (r<<16)|(g<<8)|b2; }
   function rgb(hex){ return `rgb(${(hex>>16)&255},${(hex>>8)&255},${hex&255})`; }
   function tweak(hex,d){ let r=(hex>>16)&255,g=(hex>>8)&255,b=hex&255; const cl=v=>v<0?0:v>255?255:v; return ((cl(r+d))<<16)|((cl(g+d))<<8)|(cl(b+d)); }
 
   function redraw(){
-    if(!frame||frame.width!==W||frame.height!==H) frame=img();
-    const data=frame.data; let p=0;
+    ensureBuffer();
+    if(USE_GL_WORLD){
+      renderWorldGL();
+      sceneSource = glWorldCanvas;
+    } else {
+      if(!frame||frame.width!==W||frame.height!==H) frame=img();
+      const data=frame.data; let p=0;
+      for(let y=0;y<H;y++){
+        for(let x=0;x<W;x++){
+          const t=grid[idx(x,y)];
+          let hex=C[t]||0;
+          if(t===T.SAND||t===T.STONE||t===T.METAL||t===T.ICE||t===T.ROAD||t===T.FARMLAND||t===T.PILE||t===T.WOOD||t===T.GLASS||t===T.SNOW){
+            const d=((x*13+y*7)%8)-4; hex=tweak(hex,d);
+          }
+          if(t===T.WATER){
+            let depth=0; for(let yy=y; yy<H && grid[idx(x,yy)]===T.WATER && depth<6; yy++) depth++;
+            hex=tweak(hex, -depth*3);
+            if(y>0 && grid[idx(x,y-1)]!==T.WATER) hex=tweak(hex, 8);
+          }
+          if(SOLID.has(t)){
+            let shade=0;
+            if(y>0 && SOLID.has(grid[idx(x,y-1)])) shade-=10; else shade+=4;
+            if(x>0 && SOLID.has(grid[idx(x-1,y)])) shade-=4;
+            hex=tweak(hex, shade);
+          }
+          if(t===T.LAMP && aux[idx(x,y)]>0){ hex=tweak(C[T.LAMP], 40); }
+          if(t===T.SMOKE||t===T.STEAM||t===T.GAS){ hex=tweak(hex, 6-((x+y)&3)); }
+          data[p++]=(hex>>16)&255; data[p++]=(hex>>8)&255; data[p++]=hex&255; data[p++]=255;
+        }
+      }
+      bctx.putImageData(frame,0,0);
+      sceneSource = buf;
+    }
+
+    // Build glow overlay (emitters and water sparkle)
+    gctx.setTransform(1,0,0,1,0,0); gctx.clearRect(0,0,glow.width,glow.height);
+    gctx.globalCompositeOperation='lighter';
+    const drawGlow=(gx,gy,color,r,alpha)=>{
+      const grad=gctx.createRadialGradient(gx+0.5,gy+0.5,0, gx+0.5,gy+0.5,r);
+      const rc=(color>>16)&255, gc=(color>>8)&255, bc=color&255;
+      grad.addColorStop(0, `rgba(${rc},${gc},${bc},${alpha})`);
+      grad.addColorStop(1, `rgba(${rc},${gc},${bc},0)`);
+      gctx.fillStyle=grad; gctx.fillRect(gx-r, gy-r, r*2, r*2);
+    };
     for(let y=0;y<H;y++){
       for(let x=0;x<W;x++){
         const t=grid[idx(x,y)];
-        let hex=C[t]||0;
-        if(t===T.SAND||t===T.STONE||t===T.METAL||t===T.ICE||t===T.ROAD||t===T.FARMLAND||t===T.PILE){
-          const d=((x*13+y*7)%8)-4; hex=tweak(hex,d);
-        }
-        data[p++]=(hex>>16)&255; data[p++]=(hex>>8)&255; data[p++]=hex&255; data[p++]=255;
+        if(t===T.FIRE) drawGlow(x,y,0xFF7A3A, 3, 0.35);
+        else if(t===T.LAVA) drawGlow(x,y,0xFF6A2A, 4, 0.30);
+        else if(t===T.SPARK) drawGlow(x,y,0xFFFF88, 2, 0.35);
+        else if(t===T.LAMP && aux[idx(x,y)]>0) drawGlow(x,y,0xEED16A, 3, 0.25);
+        if(t===T.WATER && (y===0 || grid[idx(x,y-1)]!==T.WATER)) drawGlow(x,y,0x88cfff, 2, 0.12);
       }
     }
-    ensureBuffer();
-    bctx.putImageData(frame,0,0);
 
     // background
     ctx.setTransform(1,0,0,1,0,0); ctx.clearRect(0,0,canvas.width,canvas.height);
@@ -883,14 +1568,30 @@ function refreshGoalsUI(){
       const g=ctx.createLinearGradient(0,0,0,canvas.height);
       g.addColorStop(0,rgb(top)); g.addColorStop(1,rgb(bot));
       ctx.fillStyle=g; ctx.fillRect(0,0,canvas.width,canvas.height);
-    } else {
-      ctx.fillStyle='#0a0e14'; ctx.fillRect(0,0,canvas.width,canvas.height);
-    }
+    } else { ctx.fillStyle='#0a0e14'; ctx.fillRect(0,0,canvas.width,canvas.height); }
 
     // world image
     ctx.imageSmoothingEnabled=false;
     ctx.setTransform(DPI*scale*cell,0,0,DPI*scale*cell,offX,offY);
-    ctx.drawImage(buf,0,0);
+    ctx.drawImage(sceneSource,0,0);
+    // glow
+    ctx.globalCompositeOperation='lighter'; ctx.globalAlpha=0.85; ctx.drawImage(glow,0,0);
+    ctx.globalAlpha=1; ctx.globalCompositeOperation='source-over';
+    // draw particles
+    if(particles.length){
+      ctx.globalCompositeOperation='lighter';
+      for(let k=0;k<particles.length;k++){
+        const P=particles[k]; const rc=(P.color>>16)&255, gc=(P.color>>8)&255, bc=P.color&255;
+        const a=Math.max(0, Math.min(1, P.ttl/40));
+        ctx.fillStyle=`rgba(${rc},${gc},${bc},${0.5*a})`;
+        ctx.beginPath(); ctx.arc(P.x+0.5, P.y+0.5, P.r||0.5, 0, Math.PI*2); ctx.fill();
+      }
+      ctx.globalCompositeOperation='source-over';
+    }
+
+    // Post FX overlays
+    renderWaterFX();
+    renderBloomFX();
 
     // motion heat overlay
     if($heat.checked){
@@ -900,6 +1601,12 @@ function refreshGoalsUI(){
       }
       ctx.globalAlpha=1;
     }
+    // Portal arrows disabled
+    // Subtle vignette
+    ctx.setTransform(1,0,0,1,0,0);
+    const vg=ctx.createRadialGradient(canvas.width/2, canvas.height/2, Math.min(canvas.width,canvas.height)*0.3, canvas.width/2, canvas.height/2, Math.max(canvas.width,canvas.height)*0.7);
+    vg.addColorStop(0,'rgba(0,0,0,0)'); vg.addColorStop(1,'rgba(0,0,0,0.18)');
+    ctx.fillStyle=vg; ctx.fillRect(0,0,canvas.width,canvas.height);
   }
 
   // ===== Loop & stats =====
@@ -1000,11 +1707,14 @@ function refreshGoalsUI(){
   $brushInc.addEventListener('click', ()=>{ $brush.value=Math.min(+$brush.value+1, +$brush.max); $brush.dispatchEvent(new Event('input')); });
   $shape.addEventListener('change', e=>{ if(e.target && e.target.value) shape=e.target.value; });
   $erase.addEventListener('change', e=>{ eraseMode=e.target.value; });
+  $faceB.addEventListener('change', e=>{ if(e.target && e.target.value) portalFaceB=e.target.value; });
+  $faceO.addEventListener('change', e=>{ if(e.target && e.target.value) portalFaceO=e.target.value; });
 
   // Sim controls
   $toggle.addEventListener('click', ()=>{ playing=!playing; $toggle.textContent=playing?'⏸️ Pause':'▶️ Play'; });
   $step.addEventListener('click', ()=>{ stepOnce=true; });
   $speed.addEventListener('input', ()=>{ speedMul=+$speed.value; });
+  // no WebGPU toggle handlers (disabled)
 
   // Zoom
   function setZoom(z){ scale=clamp(z,0.5,4); }
@@ -1067,8 +1777,11 @@ function refreshGoalsUI(){
   // Init
   refreshGoalsUI();
   initSizing();
+  // Initialize WebGPU world renderer (async, gated by toggle)
+  // WebGPU disabled
   speedMul = +$speed.value;
   if(typeof NPC_ENABLED!=='undefined' && !NPC_ENABLED){ purgePeople(); disableNPCsNow(); }
+  if(typeof PORTALS_ENABLED!=='undefined' && !PORTALS_ENABLED){ purgePortals(); }
   requestAnimationFrame(loop);
 })();
 </script>
